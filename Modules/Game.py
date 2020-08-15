@@ -24,13 +24,12 @@ class Game(commands.Cog):
                 else:
                     GetMoney = pickle.load(Data) + Money
                     pickle.dump(GetMoney)
+                await ctx.send(f"`{Money}`원을 받았습니다.")
         except EOFError:
             pass
         except Exception as E:
             await ctx.send(E)
-        finally:
-            await ctx.send(f"`{Money}`원을 받았습니다.")
-
+            
     @commands.command(name="?$")
     async def wallet(self, ctx):
         with open(f"/home/pi/Desktop/Bot/Data/Economy/{ctx.author.id}.bin", "rb") as Data:

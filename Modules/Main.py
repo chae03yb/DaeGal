@@ -75,11 +75,14 @@ class Main(commands.Cog):
     @commands.command(name = "Help")
     async def Help(self, ctx, com=None):
         Embed = discord.Embed(title="help", description="도움말")
-        for x in Modules:
-            ModuleData = self.client.get_cog(x)
-            commandList = ModuleData.get_commands()
-            Embed.add_field(name=x, value=" ".join([c.name for c in commandList]))
-        await ctx.send(embed=Embed)
+        if com is None:
+            for x in Modules:
+                ModuleData = self.client.get_cog(x)
+                commandList = ModuleData.get_commands()
+                Embed.add_field(name=x, value=" | ".join([f"`{c.name}`" for c in commandList]))
+            await ctx.send(embed=Embed)
+        else:
+            pass
     
 if __name__ == "__main__":
     client.add_cog(Main(client))
