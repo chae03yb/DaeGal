@@ -8,35 +8,41 @@ import os
 import random
 import pickle
 
-class Game(commands.Cog):
+class Game(commands.Cog, name="게임"):
     def __init__(self, client):
         self.client = client
 
-    @commands.command(name="+돈", aliases=["+$", "돈받기"])
-    @commands.cooldown(rate=1, per=3600000, type=commands.BucketType.user)
-    async def getMoney(self, ctx):
-        Money = random.randint(10000, 100000)
-        Path = "/home/pi/Desktop/Bot/Data/Economy"
-        try:
-            with open(f"{Path}/{ctx.author.id}.bin", "+wb") as Data:
-                if pickle.load(Data) is None:
-                    pickle.dump(Money, Data)
-                else:
-                    GetMoney = pickle.load(Data) + Money
-                    pickle.dump(GetMoney)
-                await ctx.send(f"`{Money}`원을 받았습니다.")
-        except EOFError:
-            pass
-        except Exception as E:
-            await ctx.send(E)
-            
-    @commands.command(name="?$")
-    async def wallet(self, ctx):
-        with open(f"/home/pi/Desktop/Bot/Data/Economy/{ctx.author.id}.bin", "rb") as Data:
+    @commands.command(name = "+돈", aliases = ["+$",])
+    @commands.cooldown(rate = 1, per = 3600000, type = commands.BucketType.user)
+    async def getMoney(self, ctx, arg = None):
+        if arg == "-h":
+            await ctx.send("`?<+돈|+$>`")
+        if arg is None:
+            Money = random.randint(10000, 100000)
+            Path = "/home/pi/Desktop/Bot/Data/Economy"
             try:
-                await ctx.send(pickle.load(Data))
+                with open(f"{Path}/{ctx.author.id}.bin", "+wb") as Data:
+                    if pickle.load(Data) is None:
+                        pickle.dump(Money, Data)
+                    else:
+                        GetMoney = pickle.load(Data) + Money
+                        pickle.dump(GetMoney)
+                    await ctx.send(f"`{Money}`원을 받았습니다.")
             except EOFError:
                 pass
+            except Exception as E:
+                await ctx.send(E)
+            
+    @commands.command(name = "?$")
+    async def wallet(self, ctx, arg = None):
+        if arg == "-h":
+            await ctx.send("`??$`")
+        if arg is None:
+            with open(f"/home/pi/Desktop/Bot/Data/Economy/{ctx.author.id}.bin", "rb") as Data:
+                try:
+                    await ctx.send(pickle.load(Data))
+                except EOFError:
+                    pass
 
 def setup(client):
     client.add_cog(Game(client))
