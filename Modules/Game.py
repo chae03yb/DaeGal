@@ -6,43 +6,26 @@ from discord.utils import get
 # 파이썬
 import os
 import random
-import pickle
+import json
 
 class Game(commands.Cog, name="게임"):
     def __init__(self, client):
         self.client = client
+    
+    @commands.command(name = "random", aliases = ["랜덤"])
+    async def RandomGenerator(self, ctx: commands.Context, Min: int=None, Max : int=None):
+        if Min or Max is None:
+            await ctx.send("난수를 생성할 범위의 정수 두개를 입력해야 합니다.")
+        else:
+            RandomResult = random.randint(Min, Max)
+            await ctx.send(f"{ctx.author}: `{RandomResult}` 입니다.")
 
-    @commands.command(name = "+돈", aliases = ["+$",])
-    @commands.cooldown(rate = 1, per = 3600000, type = commands.BucketType.user)
-    async def getMoney(self, ctx, arg = None):
-        if arg == "-h":
-            await ctx.send("`?<+돈|+$>`")
-        if arg is None:
-            Money = random.randint(10000, 100000)
-            Path = "/home/pi/Desktop/Bot/Data/Economy"
-            try:
-                with open(f"{Path}/{ctx.author.id}.bin", "+wb") as Data:
-                    if pickle.load(Data) is None:
-                        pickle.dump(Money, Data)
-                    else:
-                        GetMoney = pickle.load(Data) + Money
-                        pickle.dump(GetMoney)
-                    await ctx.send(f"`{Money}`원을 받았습니다.")
-            except EOFError:
-                pass
-            except Exception as E:
-                await ctx.send(E)
-            
-    @commands.command(name = "?$")
-    async def wallet(self, ctx, arg = None):
-        if arg == "-h":
-            await ctx.send("`??$`")
-        if arg is None:
-            with open(f"/home/pi/Desktop/Bot/Data/Economy/{ctx.author.id}.bin", "rb") as Data:
-                try:
-                    await ctx.send(pickle.load(Data))
-                except EOFError:
-                    pass
+    @commands.command(name="dice", aliases=["주사위"])
+    async def dice(self, ctx: commands.Context):
+        await ctx.send(f"주사위: {random.randint(1, 6)}")
+
+    # 카드게임
+    # 턴제 전략 게임
 
 def setup(client):
     client.add_cog(Game(client))
