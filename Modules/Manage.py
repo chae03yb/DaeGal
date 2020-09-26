@@ -9,7 +9,7 @@ import asyncio
 import json
 import pickle
 
-class Manage(commands.Cog, name="유저 관리"):
+class Manage(commands.Cog):
     def __init__(self, client):
         self.client = client
         
@@ -109,7 +109,7 @@ class Manage(commands.Cog, name="유저 관리"):
         elif amount is None:
             amount = 1
         elif amount < 0 or type(amount) != int:
-            await ctx.send("1 이상의 정수를 입력해주세요.")
+            await ctx.send("0보다 큰 정수를 입력해주세요.")
         elif target.bot:
             await ctx.send("봇에게는 경고를 부여할 수 없습니다.")
         else:

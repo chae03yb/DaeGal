@@ -4,14 +4,14 @@ import discord
 import sqlite3
 import os
 
-class User(commands.Cog, name="유저"):
+class User(commands.Cog):
     def __init__(self, client):
         self.client = client
 
     @commands.command(name="소개변경", aliases=["introduce"])
     async def setProfile(self, ctx, *Description):
         """
-        ?소개변경|introduce <소개>
+        `?소개변경|introduce <소개>`
             -h    도움말을 표시합니다.
             -r    소개를 제거합니다.
         """
@@ -34,8 +34,6 @@ class User(commands.Cog, name="유저"):
         ?프로필|profile (대상)
         """
         try:
-            """if target.bot:
-                await ctx.send("봇은 프로필을 생성할 수 없습니다.")"""
             if target is None:
                 with open(f"/home/pi/Desktop/Bot/Data/Profile/{ctx.author.id}.txt", "r") as File:
                     Embed = discord.Embed(title = f"{ctx.author.name}님의 프로필", description = File.read())
@@ -48,8 +46,11 @@ class User(commands.Cog, name="유저"):
                     await ctx.send(embed = Embed)
 
         except FileNotFoundError:
-            with open(f"/home/pi/Desktop/Bot/Data/Profile/{ctx.author.id}.txt", "w") as File:
-                await ctx.send("프로필이 생성되었습니다.")
+            if target.bot:
+                await ctx.send("봇은 프로필을 생성할 수 없습니다.")
+            else:
+                with open(f"/home/pi/Desktop/Bot/Data/Profile/{ctx.author.id}.txt", "w") as File:
+                    await ctx.send("프로필이 생성되었습니다.")
 
     @commands.command(name="+customCommand")
     async def customCommand(self, ctx: commands.Context, command=None, do=None):

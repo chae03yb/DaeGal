@@ -32,7 +32,7 @@ class ManageServer(commands.Cog):
             pickle.dump(file=File, obj=role)
             await ctx.send("설정 완료.")
     
-    @commands.command(name = "setWelcomeMessage")
+    @commands.command(name = "setWelcomeMessage", aliases=["환영메시지설정"])
     @commands.has_permissions(administrator = True)
     @commands.guild_only()
     async def setWelcomeMessage(self, ctx: commands.Context, message = None):
@@ -42,6 +42,10 @@ class ManageServer(commands.Cog):
             with open(f"/home/pi/DesktopBot/Data/GuildData/WelcomMessage/{ctx.guild.id}.txt", "w") as File:
                 File.write(message)
                 await ctx.send("설정 완료.")
+
+    # @commands.command(name="createChannel", aliases=["채널생성", "+채널", "+channel"])
+    # async def createChannel(self, ctx: commands.Context, channelName=None, )
+    
     """
     @commands.command(name = "setWarnLimit")
     @commands.has_permissions(administrator = True)

@@ -7,8 +7,9 @@ from discord.utils import get
 import os
 import random
 import json
+import asyncio
 
-class Game(commands.Cog, name="게임"):
+class Game(commands.Cog):
     def __init__(self, client):
         self.client = client
     
@@ -23,9 +24,22 @@ class Game(commands.Cog, name="게임"):
     @commands.command(name="dice", aliases=["주사위"])
     async def dice(self, ctx: commands.Context):
         await ctx.send(f"주사위: {random.randint(1, 6)}")
-
+    
+    @commands.command(name="choice", aliases=["선택"])
+    async def choice(self, ctx: commands.Context, *contents):
+        if bool(contents) is False:
+            await ctx.send("선택할 항목들을 1개 이상 넣어주세요.")
+        else:
+            await ctx.send(f"{ctx.author.mention}, {random.choice(contents)}이 좋겠군요.")
+    
+    @commands.command(name="조커뽑기")
+    async def Joker(self, ctx: commands.Context, limit=None):
+        pass
+            
     # 카드게임
     # 턴제 전략 게임
+    # 도박
+    # 주식
 
 def setup(client):
     client.add_cog(Game(client))

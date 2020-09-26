@@ -7,6 +7,7 @@ from discord.ext import commands
 # 파이썬
 import os
 import asyncio
+# from asyncio import *
 import json
 import pickle
 
@@ -16,21 +17,20 @@ Modules = [
     "Manage",
     "ManageServer",
     "Bot",
-#    "Others",
     "Game",
     "User",
-#    "Help",
-#    "MusicTest",
+    "Others",
+    "MusicTest",
 ]
 
 # from Modules import *
 
 client.remove_command("help")
 
-client.remove_cog("help")
+adminID = (434549321216688128, 724436679556988990, 373473326179549205, 480977114980417538)
 
 def isOwner(ctx):
-    return ctx.author.id in [434549321216688128, 724436679556988990, 373473326179549205, 480977114980417538]
+    return ctx.author.id in adminID
     #잠ㅅ갊#3497, 잠갈 부계#7379, 8956 마이크#4156, 8956Sharp8956#8956
 
 @client.event
@@ -38,20 +38,6 @@ async def on_ready():
     print(f"Logged in as {client.user}")
     print(f"os: {os.name}")
     print("--------------------------------------------------\n")
-    # i = 0
-
-    # Presence = [
-    #     discord.Game(f"ping: {int(client.latency * 1000)}"),
-    #     discord.Game("도움말: ?help"),
-    # ]
-
-    # while not client.is_closed():
-        # delayTime = 3
-        # await asyncio.sleep(delayTime)
-        # await client.change_presence(activity = Presence[i], status = discord.Status.online)
-        # i += 1
-        # if i > len(Presence):
-        #     i = 0
 
 @client.event
 async def on_command_error(ctx, error):
@@ -86,6 +72,22 @@ class Main(commands.Cog):
     def __init__(self, client: commands.Bot):
         self.client = client
 
+    @commands.command(name="help", hidden=True)
+    async def Help(self, ctx: commands.Context, com=None):
+        if com is None:
+            Embed = discord.Embed(
+                title="도움말",
+                color=0x000000
+            )
+            for Extension in Modules:
+                CogData = self.client.get_cog(Extension)
+                ComList = CogData.get_commands()
+                
+                Embed.add_field(name=Extension, value=" ".join(c.name for c in ComList), inline=True)
+            await ctx.send(embed=Embed)
+        else:
+            pass
+            
     @commands.command(name="load", aliases=["+ext"], hidden=True)
     @commands.check(isOwner)
     async def loadEx(self, ctx, ext=None):
@@ -119,11 +121,19 @@ class Main(commands.Cog):
             await ctx.send("모두 리로드했습니다.")
         except Exception as E:
             await ctx.send(E)
+
+    @commands.command(name="StatusCheck", hidden=True)
+    @commands.check(isOwner)
+    async def StatusCheck(self, ctx: commands.Context):
+        pass
         
 if __name__ == "__main__":
-    client.add_cog(Main(client))
-    for cog in Modules:
-        client.load_extension(cog)
-        print(f"Loaded Module: {cog}")
-    with open("/home/pi/Desktop/Bot/Token/Token", "r") as Token:
-        client.run(Token.read())
+    try:
+        client.add_cog(Main(client))
+        for cog in Modules:
+            client.load_extension(cog)
+            print(f"Loaded Module: {cog}")
+        with open("/home/pi/Desktop/Bot/Token/Token", "r") as Token:
+            client.run(Token.read())
+    except KeyboardInterrupt:
+        pass
