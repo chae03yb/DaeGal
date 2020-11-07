@@ -13,13 +13,20 @@ class Game(commands.Cog):
     def __init__(self, client):
         self.client = client
     
-    @commands.command(name = "random", aliases = ["랜덤"])
-    async def RandomGenerator(self, ctx: commands.Context, Min: int=None, Max : int=None):
-        if Min or Max is None:
-            await ctx.send("난수를 생성할 범위의 정수 두개를 입력해야 합니다.")
+    @commands.command(name="random", aliases=["랜덤"])
+    async def RandomGenerator(self, ctx: commands.Context, Min=None, Max=None):
+        if Min == None:
+            await ctx.send("시작 값을 입력해주세요.")
+        elif Max == None:
+            await ctx.send("끝 값을 입력해주세요.")
+        elif Min > Max:
+            await ctx.send("시작 값은 끝 값보다 클 수 없습니다.")
         else:
-            RandomResult = random.randint(Min, Max)
-            await ctx.send(f"{ctx.author}: `{RandomResult}` 입니다.")
+            try:
+                RandomResult = random.randint(int(Min), int(Max))
+                await ctx.send(f"{ctx.author}: `{RandomResult}` 입니다.")
+            except ValueError:
+                await ctx.send("시작 값/끝 값을 정수로 입력해주세요.")
 
     @commands.command(name="dice", aliases=["주사위"])
     async def dice(self, ctx: commands.Context):

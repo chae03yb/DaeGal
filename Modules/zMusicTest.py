@@ -1,10 +1,14 @@
+# 디스코드
 import discord
 from discord.ext import commands
 from discord.utils import get
-import asyncio
 import discord.voice_client
+
+# 파이썬
+import asyncio
+
+# 음악
 import youtube_dl
-# import 
 
 players = {}
 

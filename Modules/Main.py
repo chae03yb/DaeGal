@@ -3,6 +3,7 @@
 # 디스코드
 import discord
 from discord.ext import commands
+from discord import utils
 
 # 파이썬
 import os
@@ -10,84 +11,48 @@ import asyncio
 # from asyncio import *
 import json
 import pickle
+import random
 
-client = commands.Bot(command_prefix = "?")
+import ConsoleColors as CC
+
+client = commands.Bot(command_prefix="?", intents=discord.Intents.all())
 
 Modules = [
-    "Manage",
-    "ManageServer",
     "Bot",
+    "Commands",
+    "CustomCommand",
+    "Docs",
+    "ErrorHandler",
     "Game",
+    "MailService",
+    "Guild",
+    "GuildUser",
     "User",
     "Others",
-    "MusicTest",
+    # "MusicTest",
 ]
 
-# from Modules import *
 
-client.remove_command("help")
-
-adminID = (434549321216688128, 724436679556988990, 373473326179549205, 480977114980417538)
+adminID = (
+    434549321216688128, # 8956Sharp8956#8956
+    480977114980417538, # 잠ㅅ갊#3497 
+    373473326179549205, # 8956 마이크#4156
+    #724436679556988990, # 잠갈 부계#7379 주석처리 해둘것.
+)
 
 def isOwner(ctx):
     return ctx.author.id in adminID
-    #잠ㅅ갊#3497, 잠갈 부계#7379, 8956 마이크#4156, 8956Sharp8956#8956
-
-@client.event
-async def on_ready():
-    print(f"Logged in as {client.user}")
-    print(f"os: {os.name}")
-    print("--------------------------------------------------\n")
-
-@client.event
-async def on_command_error(ctx, error):
-    if isinstance(error, commands.errors.CommandNotFound):
-        return
-    elif isinstance(error, commands.errors.CheckFailure):
-        await ctx.send("권한이 부족합니다.")
-    elif isinstance(error, commands.errors.CommandOnCooldown):
-        await ctx.send(f"`{int(error.retry_after / 60000)}`분 후에 다시 사용해주세요.")
-    elif isinstance(error, discord.NotFound):
-        await ctx.send("봇의 역할이 대상의 역할보다 아래에 있습니다.")
-    elif isinstance(error, commands.errors.MissingRequiredArgument):
-        await ctx.send("인수가 필요합니다.")
-    else:
-        print(f"E: {error}")
-
-@client.event
-async def on_member_join(member: discord.Member):
-    try:
-        with open(f"/home/pi/Desktop/Bot/Data/GuildData/WelcomeMessage/{member.guild.id}.txt", "r") as File:
-            await member.send(File.read())
-    except FileNotFoundError:
-        pass
-
-    try:
-        with open(f"/home/pi/Desktop/Bot/Data/Role/DefaultRole/{member.guild.id}.p", "rb") as File:
-            await member.add_roles(pickle.load(File, encoding="utf-8"))
-    except FileNotFoundError:
-        pass
 
 class Main(commands.Cog):
     def __init__(self, client: commands.Bot):
         self.client = client
 
-    @commands.command(name="help", hidden=True)
-    async def Help(self, ctx: commands.Context, com=None):
-        if com is None:
-            Embed = discord.Embed(
-                title="도움말",
-                color=0x000000
-            )
-            for Extension in Modules:
-                CogData = self.client.get_cog(Extension)
-                ComList = CogData.get_commands()
-                
-                Embed.add_field(name=Extension, value=" ".join(c.name for c in ComList), inline=True)
-            await ctx.send(embed=Embed)
-        else:
-            pass
-            
+    @commands.Cog.listener()
+    async def on_ready(self):
+        print(f"{CC.BG_RGB(0, 200, 0)} Logged in as {self.client.user} {CC.EFCT.CLEAR}")
+        print(f"os: {os.name}")
+        print("--------------------------------------------------\n")
+
     @commands.command(name="load", aliases=["+ext"], hidden=True)
     @commands.check(isOwner)
     async def loadEx(self, ctx, ext=None):
@@ -117,23 +82,23 @@ class Main(commands.Cog):
         try:
             for ext in Modules:
                 client.reload_extension(ext)
-                print(f"Reloaded extensions: {ext}")
+                print(f"Reloaded Module: {ext}")
             await ctx.send("모두 리로드했습니다.")
         except Exception as E:
             await ctx.send(E)
 
-    @commands.command(name="StatusCheck", hidden=True)
-    @commands.check(isOwner)
-    async def StatusCheck(self, ctx: commands.Context):
-        pass
-        
 if __name__ == "__main__":
     try:
+        client.remove_command("help")
+        client.remove_cog("help")
         client.add_cog(Main(client))
         for cog in Modules:
             client.load_extension(cog)
-            print(f"Loaded Module: {cog}")
+            print(f"{CC.TXT.BR_GREEN} Loaded Module: {cog} {CC.EFCT.CLEAR}")
+        print("--------------------------------------------------")
         with open("/home/pi/Desktop/Bot/Token/Token", "r") as Token:
             client.run(Token.read())
     except KeyboardInterrupt:
         pass
+    # except Exception as E:
+        # print(f"{CC.BG.RED} E: {E} {CC.EFCT.CLEAR}")

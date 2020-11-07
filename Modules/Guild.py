@@ -1,0 +1,149 @@
+# 디스코드
+import discord
+from discord.ext import commands
+from discord import utils
+
+# 파이썬
+import json
+import random
+import os.path
+import asyncio
+
+Path = "/home/pi/Desktop/Bot/Data/Guild/"
+
+class Guild(commands.Cog):
+    def __init__(self, client):
+        self.client = client
+
+    @commands.Cog.listener()
+    async def on_member_join(self, member: discord.Member):
+        Path = "/home/pi/Desktop/Bot/Data/Guild/"
+        try:
+            if member.bot == False:
+                with open(f"{Path}/{member.guild.id}/Role/DefaultRole.json", "r") as File:
+                    await member.add_roles(utils.get(member.guild.roles, id=json.load(File, encoding="utf-8")["roleID"]), atomic=True)
+            if member.bot == True:
+                with open(f"{Path}/{member.guild.id}/Role/BotRole.json", "r") as File:
+                    await member.add_roles(utils.get(member.guild.roles, id=json.load(File, encoding="utf-8")["roleID"]), atomic=True)
+        except FileNotFoundError:
+            pass
+        try:
+            with open(f"{Path}/{member.guild.id}/WelcomeMsg.txt", "r") as File:
+                Embed = discord.Embed(
+                    color=0x000000,
+                    title="환영합니다",
+                    description=File.read()
+                )
+                member.guild.get_channel().send(embed=Embed)
+        except FileNotFoundError:
+            pass
+
+    @commands.command(name="setPunishRole", aliases=["징벌_역할_설정"])
+    @commands.has_permissions(administrator=True)
+    @commands.guild_only()
+    async def setPunishRole(self, ctx: commands.Context, role: discord.Role):
+        if not os.path.exists(f"{Path}/{ctx.guild.id}/Role"):
+            os.makedirs(f"{Path}/{ctx.guild.id}/Role")
+        with open(f"{Path}/{ctx.guild.id}/Role/PunishRole.json", "w") as File:
+            Data = { "roleID": role.id }
+            json.dump(obj=Data, fp=File, indent=4)
+            await ctx.send("설정 완료")
+    
+    @commands.command(name="setDefaultRole", aliases=["기본_역할_설정"])
+    @commands.has_permissions(administrator=True)
+    @commands.guild_only()
+    async def setDefaultRole(self, ctx: commands.Context, role: discord.Role):
+        if not os.path.exists(f"{Path}/{ctx.guild.id}/Role"):
+            os.makedirs(f"{Path}/{ctx.guild.id}/Role")
+        with open(f"{Path}/{ctx.guild.id}/Role/DefaultRole.json", "w") as File:
+            Data = { "roleID": role.id }
+            json.dump(obj=Data, fp=File, indent=4)
+            await ctx.send("설정 완료")
+    
+    @commands.command(name="setBotRole", aliases=["봇_역할_설정"])
+    @commands.has_permissions(administrator=True)
+    @commands.guild_only()
+    async def setBotRole(self, ctx: commands.Context, role: discord.Role):
+        if not os.path.exists(f"{Path}/{ctx.guild.id}/Role"):
+            os.makedirs(f"{Path}/{ctx.guild.id}/Role")
+        with open(f"{Path}/{ctx.guild.id}/Role/BotRole.json", "w") as File:
+            Data = { "roleID": role.id }
+            json.dump(obj=Data, fp=File, indent=4)
+            await ctx.send("설정 완료")
+    
+    @commands.command(name="setWelcome")
+    @commands.has_permissions(administrator=True)
+    @commands.guild_only()
+    async def setWelcome(self, ctx: commands.Context):
+        Channel = None
+        Message = None
+        # await ctx.send("setWelcomeMessage/Channel 개편중")
+        try:
+            await ctx.send("환영 메시지를 보낼 채널을 멘션해주십시오")
+            async def setChannel(msg: discord.TextChannel):
+                return msg.message.content and msg.message.author == ctx.message.author
+            Channel = await self.client.wait_for(event="on_message", timeout=500.0, check=setChannel)
+        except asyncio.TimeoutError:
+            await ctx.send("시간 초과")
+        else:
+            try:
+                with open(f"{Path}/{ctx.guild.id}/Welcome/Channel.json") as File:
+                    Data = { "ChannelID": Channel.id }
+                    json.dump(obj=Data, fp=File, indent=4)
+                    await ctx.send("채널 설정 완료")
+            except Exception as E:
+               await ctx.send(E)
+
+        try:
+            async def setMessage(msg):
+                return msg.message.content and msg.message.author == ctx.message.author
+            await ctx.send(
+                "환영 메세지의 내용을 입력해주십시오\n"\
+                "None을 입력할시 비워둡니다."
+            )
+            Message = await self.client.wait_for(event="on_message", timeout=500.0, check=setMessage)
+        except asyncio.TimeoutError:
+            await ctx.send("시간 초과")
+        else:
+            if Message == "None":
+                await ctx.send("설정을 종료합니다")
+                return
+            try:
+                with open(f"{Path}/{ctx.guild.id}/Welcome/Message", "w") as File:
+                    File.write(Message)
+                    await ctx.send("메세지 설정 완료")
+            except Exception as E:
+                await ctx.send(E)
+
+        """if message is None:
+            await ctx.send("환영 메세지의 내용을 입력해주세요")
+            return
+        if not os.path.exists(f"{Path}/{ctx.guild.id}"):
+            os.mkdir(f"{Path}/{ctx.guild.id}")
+        with open(f"{Path}/{ctx.guild.id}/WelcomeMsg.txt", "w") as File:
+            File.write(message)
+            await ctx.send("설정 완료")
+        if CID is None:
+            await ctx.send("채널 ID가 필요합니다")
+            return
+        if not os.path.exists(f"{Path}/{ctx.guild.id}/Channel"):
+            os.makedirs(f"{Path}/{ctx.guild.id}")
+        with open(f"{Path}/{ctx.guild.id}/GuildConfig.json", "w") as File:
+            Data = { "WelcomeChannel": CID }
+            json.dump(obj=Data, fp=File, indent=4)
+            await ctx.send("설정 완료")"""
+
+    @commands.command(name="clear")
+    @commands.has_permissions(administrator=True)
+    @commands.guild_only()
+    async def clear(self, ctx: commands.Context, amount: int):
+        if amount <= 0:
+            return await ctx.send("0보다 큰 정수를 입력해주세요.")
+        else:
+            await ctx.channel.purge(limit=amount + 1)
+
+    # @commands.command(name="createChannel", aliases=["채널생성", "+채널", "+channel"])
+    # async def createChannel(self, ctx: commands.Context, channelName=None, )
+
+def setup(client):
+    client.add_cog(Guild(client))
