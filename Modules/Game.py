@@ -14,7 +14,7 @@ class Game(commands.Cog):
         self.client = client
     
     @commands.command(name="random", aliases=["랜덤"])
-    async def RandomGenerator(self, ctx: commands.Context, Min=None, Max=None):
+    async def RandomNumberGenerator(self, ctx: commands.Context, Min=None, Max=None):
         if Min == None:
             await ctx.send("시작 값을 입력해주세요.")
         elif Max == None:
