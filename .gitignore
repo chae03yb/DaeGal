@@ -1,4 +1,7 @@
-Data/
+Data/Game
+Data/Guild
+Data/Mail
+Data/User
 Token/
-Modules/To_do.txt
 Modules/__pycache__/
+SimpleSQL/

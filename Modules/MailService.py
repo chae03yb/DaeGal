@@ -4,7 +4,6 @@ from discord.ext import commands
 
 # 파이썬
 import asyncio
-import random
 import os
 import json
 
@@ -39,6 +38,7 @@ class MailService(commands.Cog):
 
         try:
             reaction, user = await self.client.wait_for("reaction_add", timeout=300, check=choice)
+            del user
         except asyncio.TimeoutError:
             return
         else:

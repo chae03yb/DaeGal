@@ -5,7 +5,6 @@ from discord import utils
 
 # 파이썬
 import json
-import random
 import os.path
 import asyncio
 
@@ -17,7 +16,6 @@ class Guild(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_join(self, member: discord.Member):
-        Path = "/home/pi/Desktop/Bot/Data/Guild/"
         try:
             if member.bot == False:
                 with open(f"{Path}/{member.guild.id}/Role/DefaultRole.json", "r") as File:
@@ -28,13 +26,15 @@ class Guild(commands.Cog):
         except FileNotFoundError:
             pass
         try:
-            with open(f"{Path}/{member.guild.id}/WelcomeMsg.txt", "r") as File:
+            Embed = None
+            with open(f"{Path}/{member.guild.id}/Welcome/Message", "r") as File:
                 Embed = discord.Embed(
                     color=0x000000,
                     title="환영합니다",
                     description=File.read()
                 )
-                member.guild.get_channel().send(embed=Embed)
+            with open(f"{Path}/{member.guild.id}/Welcome/Channel.json", "r") as File:
+                await member.guild.get_channel(json.load(fp=File)["ChannelID"]).send(embed=Embed)
         except FileNotFoundError:
             pass
 
@@ -71,36 +71,44 @@ class Guild(commands.Cog):
             json.dump(obj=Data, fp=File, indent=4)
             await ctx.send("설정 완료")
     
-    @commands.command(name="setWelcome")
+    @commands.command(name="setWelcomeChannel")
     @commands.has_permissions(administrator=True)
     @commands.guild_only()
-    async def setWelcome(self, ctx: commands.Context):
-        Channel = None
-        Message = None
-        # await ctx.send("setWelcomeMessage/Channel 개편중")
-        try:
-            await ctx.send("환영 메시지를 보낼 채널을 멘션해주십시오")
-            async def setChannel(msg: discord.TextChannel):
-                return msg.message.content and msg.message.author == ctx.message.author
-            Channel = await self.client.wait_for(event="on_message", timeout=500.0, check=setChannel)
-        except asyncio.TimeoutError:
-            await ctx.send("시간 초과")
+    async def setWelcomeChannel(self, ctx: commands.Context, channel:discord.TextChannel=None):
+        if channel is None:
+            await ctx.send("채널 이름/채널 멘션이 필요합니다.")
         else:
             try:
-                with open(f"{Path}/{ctx.guild.id}/Welcome/Channel.json") as File:
-                    Data = { "ChannelID": Channel.id }
-                    json.dump(obj=Data, fp=File, indent=4)
-                    await ctx.send("채널 설정 완료")
-            except Exception as E:
-               await ctx.send(E)
+                await ctx.send("환영 메시지를 보낼 채널을 멘션해주십시오")
+                async def setChannel(msg: discord.TextChannel):
+                    return msg.message.content and msg.message.author == ctx.message.author
+                Channel = await self.client.wait_for(event="on_message", timeout=500.0, check=setChannel)
+            except asyncio.TimeoutError:
+                await ctx.send("시간 초과")
+            else:
+                try:
+                    with open(f"{Path}/{ctx.guild.id}/Welcome/Channel.json") as File:
+                        Data = { "ChannelID": Channel.id }
+                        json.dump(obj=Data, fp=File, indent=4)
+                        await ctx.send("채널 설정 완료")
+                except Exception as E:
+                    await ctx.send(E)
 
+    # @commands.command(name="setWelcomeMsg")
+    @commands.has_permissions(administrator=True)
+    @commands.guild_only()
+    async def setWelcomeMsg(self, ctx: commands.Context, option=None):
+        if option == "del":
+            os.remove(f"{Path}/{ctx.guild.id}/Welcome/Msg")
+            return
         try:
             async def setMessage(msg):
                 return msg.message.content and msg.message.author == ctx.message.author
-            await ctx.send(
-                "환영 메세지의 내용을 입력해주십시오\n"\
-                "None을 입력할시 비워둡니다."
+
+            Embed = discord.Embed(
+                title="환영 메세지의 내용을 입력해주세요"
             )
+            await ctx.send(embed=Embed)
             Message = await self.client.wait_for(event="on_message", timeout=500.0, check=setMessage)
         except asyncio.TimeoutError:
             await ctx.send("시간 초과")

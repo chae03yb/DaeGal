@@ -25,6 +25,8 @@ class ErrorHandler(commands.Cog):
             await ctx.send("인수가 필요합니다.")
         elif isinstance(error, commands.errors.PrivateMessageOnly):
             await ctx.send("이 명령어는 DM에서만 가능합니다.")
+        elif isinstance(error, AttributeError):
+            await ctx.send(f"AttributeError: {error}")
         else:
             print(f"{CC.BG.RED} E: {error} {CC.EFCT.CLEAR}")
 

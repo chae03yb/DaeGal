@@ -21,21 +21,21 @@ class Others(commands.Cog):
         itemList = ["1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣", "🔟"]
         waitTime = 5.0
 
-        async def sleepAndDelete(self, ctx, limit: int):
+        async def sleepAndDelete(ctx, limit: int):
             await asyncio.sleep(waitTime)
             await ctx.channel.purge(limit = limit)
 
         if itemAmount > len(itemList):
             await ctx.channel.send(f"투표 항목은 최대 {len(itemList)}개입니다.\n\n{int(waitTime)}초 후 이 메시지와 사용된 명령은 삭제됩니다.")
-            await sleepAndDelete(self = self, ctx = ctx, limit = 2)
+            await sleepAndDelete(ctx=ctx, limit=2)
             return
         elif itemAmount < 2:
             await ctx.channel.send(f"투표 항목은 최소 2개 이상이어야 합니다.\n\n{int(waitTime)}초 후 이 메시지와 사용된 명령은 삭제됩니다.")
-            await sleepAndDelete(self = self, ctx = ctx, limit = 2)
+            await sleepAndDelete(ctx=ctx, limit=2)
             return
         if description is None:
             await ctx.channel.send(f"내용을 적어주세요\n\n{int(waitTime)}초 후 이 메시지와 사용된 명령은 삭제됩니다.")
-            await sleepAndDelete(self = self, ctx = ctx, limit = 2) 
+            await sleepAndDelete(ctx=ctx, limit=2) 
             return
         else:
             await ctx.channel.purge(limit=1)

@@ -40,7 +40,7 @@ class Game(commands.Cog):
             await ctx.send(f"{ctx.author.mention}, {random.choice(contents)}이 좋겠군요.")
     
     @commands.command(name="조커뽑기")
-    async def Joker(self, ctx: commands.Context, limit=None):
+    async def Joker(self, ctx: commands.Context):
         pass
             
     # 카드게임
