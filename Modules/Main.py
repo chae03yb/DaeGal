@@ -21,24 +21,23 @@ client = commands.Bot(
 
 Modules = [
     "Bot",
-    # "Commands",
-    # "CustomCommand",
+#    "Commands",
+#    "CustomCommands",
     "Docs",
     "ErrorHandler",
     "Game",
-    "MailService",
     "Guild",
     "GuildUser",
-    "User",
+    "MailService",
+    "MusicTest",
     "Others",
-    # "MusicTest",
+    "User",
 ]
 
 adminID = (
-    434549321216688128, # 8956Sharp8956#8956
+    434549321216688128, # 샤프#8720
     480977114980417538, # 잠ㅅ갊#3497 
-    373473326179549205, # 8956 마이크#4156
-    #724436679556988990, # 잠갈 부계#7379 주석처리 해둘것.
+    373473326179549205, # 샤프 마이크#4156
 )
 
 def isOwner(ctx):
@@ -47,6 +46,7 @@ def isOwner(ctx):
 class Main(commands.Cog):
     def __init__(self, client: commands.Bot):
         self.client = client
+        self.DataPath = "/home/pi/Desktop/Bot/Data"
 
     @commands.Cog.listener()
     async def on_ready(self):
@@ -64,7 +64,7 @@ class Main(commands.Cog):
                 client.load_extension(ext)
                 Modules.append(ext)
                 await ctx.send(f"{ext}를 로드했습니다.")
-                print(f"{CC.TXT.BR_GREEN} loaded Module: {ext} {CC.EFCT.CLEAR}")
+                print(f"{CC.TXT.BR_GREEN} Loaded Module: {ext} {CC.EFCT.CLEAR}")
             except Exception as E:
                 await ctx.send(f"E: {E}")
 
@@ -74,7 +74,7 @@ class Main(commands.Cog):
         try:
             client.unload_extension(ext)
             await ctx.send(f"{ext}를 언로드했습니다.")
-            print(f"{CC.TXT.BR_RED} unloaded Module: {ext} {CC.EFCT.CLEAR}")
+            print(f"{CC.TXT.BR_RED} Unloaded Module: {ext} {CC.EFCT.CLEAR}")
         except Exception as E:
             await ctx.send(f"E: {E}")
     

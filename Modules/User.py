@@ -1,3 +1,4 @@
+from inspect import EndOfBlock
 import discord
 from discord.ext import commands
 
@@ -60,6 +61,16 @@ class User(commands.Cog):
         # with open("/home/pi/Desktop/Bot/Data/User/SID.jsonc") as File:
         #     json.dump(fp=File, obj=Data)
         # await ctx.send("asdf")
+
+    @commands.command(name = "mUID", hidden = True)
+    async def makeUserID(self, ctx: commands.Context):
+        try:
+            with open("/home/pi/Desktop/User/UIDs.json", mode = "r+", encoding = "utf-8") as File:
+                Data = json.load(File)
+        except FileNotFoundError:
+            with open("/home/pi/Desktop/User/UIDs.json", mode = "w", encoding = "utf-8") as File:
+                pass
+    R"""json으로 ID를 키, 번호를 값으로 하여 딕셔너리로 불러온 다음 for문과 items 함수로 ID를 찾는다"""
 
 def setup(client):
     client.add_cog(User(client))

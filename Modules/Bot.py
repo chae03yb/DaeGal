@@ -1,5 +1,6 @@
 import discord
-from discord.ext import commands
+from discord import activity
+from discord.ext import commands, tasks
 
 import asyncio
 import os
@@ -10,10 +11,12 @@ import ConsoleColors as CC
 import Main
 
 Path = "/home/pi/Desktop/Bot/Data/Guild"
+PresenceCount = 0
 
-class Bot(commands.Cog, name="봇"):
+class Bot(commands.Cog):
     def __init__(self, client):
         self.client = client
+        # self.ChangePresence.start()
 
     @commands.command(name="ping", aliases=["핑"])
     async def ping(self, ctx: commands.Context):
@@ -54,7 +57,8 @@ class Bot(commands.Cog, name="봇"):
         if status is None:
             return await ctx.send("상태 메시지를 같이 입력해주십시오.")
         with open("/home/pi/Desktop/Bot/Data/Bot/Presence", "a") as File:
-            File.write(status)
-
+            File.write(status+"\n")
+            await ctx.send("완료")
+    
 def setup(client):
     client.add_cog(Bot(client))

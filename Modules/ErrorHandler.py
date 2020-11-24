@@ -28,7 +28,14 @@ class ErrorHandler(commands.Cog):
         elif isinstance(error, AttributeError):
             await ctx.send(f"AttributeError: {error}")
         else:
+            Embed = discord.Embed(
+                title="오류",
+                description=error,
+                color=0xFF3333
+            )
+            # await ctx.send(embed=Embed)
             print(f"{CC.BG.RED} E: {error} {CC.EFCT.CLEAR}")
+            await ctx.send(f"E: {error}")
 
 def setup(client):
     client.add_cog(ErrorHandler(client))

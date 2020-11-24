@@ -1,14 +1,16 @@
 # 디스코드
-import discord
-from discord.ext import commands
-from discord import utils
-
-# 파이썬
-import os
 import asyncio
 import json
+# 파이썬
+import os
+
+import discord
+from discord import utils
+from discord.ext import commands
+from discord.utils import get
 
 Path = "/home/pi/Desktop/Bot/Data/Guild"
+ONE_HOUR = 60 * 60
 
 class GuildUser(commands.Cog):
     def __init__(self, client):
@@ -49,8 +51,8 @@ class GuildUser(commands.Cog):
             try:
                 send = await ctx.send(embed=Embed)
                 await self.client.wait_for("message", check=check, timeout=15.0)
-                await send.add_reaction("✔")
-                await send.add_reaction("❌")
+                for emoji in ["✔", "❌"]:
+                    await send.add_reaction(emoji)
             except asyncio.TimeoutError:
                 await ctx.send("취소되었습니다.")
             else:
@@ -60,7 +62,7 @@ class GuildUser(commands.Cog):
                 else:
                     await ctx.send("취소되었습니다.")
 
-    @commands.command(name="punish", aliases=["징벌"])
+    @commands.command(name="punish", aliases=["징벌", "slap"])
     @commands.has_permissions(administrator=True)
     @commands.guild_only()
     async def punish(self, ctx: commands.Context, target: discord.Member=None, Time: int=0):
@@ -83,7 +85,7 @@ class GuildUser(commands.Cog):
                 await target.remove_roles(utils.get(ctx.guild.roles, id=json.load(File, encoding="utf-8")["roleID"]), atomic=True)
             await ctx.send("대상을 징벌했습니다.")
 
-            await asyncio.sleep(Time * (60 * 60))
+            await asyncio.sleep(Time * ONE_HOUR)
 
             with open(f"{Path}/{ctx.guild.id}/Role/PunishRole.json", "r") as File:
                 await target.remove_roles(utils.get(ctx.guild.roles, id=json.load(File, encoding="utf-8")["roleID"]), atomic=True)
@@ -91,14 +93,14 @@ class GuildUser(commands.Cog):
                 await target.add_roles(utils.get(ctx.guild.roles, id=json.load(File, encoding="utf-8")["roleID"]), atomic=True)
             await ctx.send(f"{target.mention} 징벌이 끝났습니다.")
             
-    @commands.command(name="+role", aliases=["addRole", "addrole", "+역할"])
+    @commands.command(name="addRole", aliases=["+role", "addrole", "+역할"])
     @commands.has_permissions(administrator=True)
     @commands.guild_only()
     async def addRole(self, ctx: commands.Context, target: discord.Member=None, role: discord.Role=None):
         await target.add_roles(role)
         await ctx.send(f"{target.name}에게 \"{role.name}\" 역할을 추가했습니다.")
     
-    @commands.command(name="-role", aliases=["rmRole", "rmrole", "-역할"])
+    @commands.command(name="rmRole", aliases=["removeRole","rmrole", "-역할", "-role"])
     @commands.has_permissions(administrator=True)
     @commands.guild_only()
     async def removeRole(self, ctx: commands.Context, target: discord.Member=None, role: discord.Role=None):
@@ -108,46 +110,70 @@ class GuildUser(commands.Cog):
     @commands.command(name="warning", aliases=["경고"])
     @commands.has_permissions(administrator=True)
     @commands.guild_only()
-    async def warning(self, ctx, target: discord.Member=None, amount: int=None):
+    async def warning(self, ctx:commands.Context, target:discord.Member=None, amount:int=1):
         if target is None:
-            await ctx.send("대상을 입력해주세요.")
-        elif amount is None:
-            amount = 1
-        elif type(amount) != int:
-            await ctx.send("부여할 경고의 개수를 정수로 입력해주세요.")
-        elif target.bot:
-            await ctx.send("봇에게는 경고를 부여할 수 없습니다.")
+            return await ctx.send("대상이 필요합니다.")
+        elif amount < 1:
+            return await ctx.send("경고 수량은 0보다 큰 정수만 가능합니다.")
+        if "Members" not in os.listdir(f"{Path}/{ctx.guild.id}/"):
+            os.makedirs(f"{Path}/{ctx.guild.id}/Members/")
+
+        PunishRole  = None 
+        DefaultRole = None
+        Config      = None
+
+        if "PunishConfig.json" in os.listdir(f"{Path}/{ctx.guild.id}/"):
+            Config = json.load(fp=open(f"{Path}/{ctx.guild.id}/PunishConfig.json", "r"))
+        if "DefaultRole.json" not in os.listdir(f"{Path}/{ctx.guild.id}/Roles") and "PunishRole.json" not in os.listdir(f"{Path}/{ctx.guild.id}/Roles"):
+            return await ctx.send("기본 역할과 징벌 역할을 설정하지 않았습니다.")
+        else:
+            PunishRole  = json.load(fp=open(f"{Path}/{ctx.guild.id}/Roles/PunishRole.json", "r"))["roleID"]
+            DefaultRole = json.load(fp=open(f"{Path}/{ctx.guild.id}/Roles/DefaultRole.json", "r"))["roleID"]
+
+        jsonData = {}
         try:
-            with open(F"/home/pi/Desktop/Bot/Data/Guild/{ctx.guild.id}/Warnings.json", "r", encoding = "utf-8") as File:
-                Data = json.load(File)
-                try:
-                    targetWarningCount = Data["warnings"][target.id]
-                    with open(F"/home/pi/Desktop/Bot/Data/Guild/{ctx.guild.id}/GuildConfig.json", "r", encoding = "utf-8") as File2:
-                        try:
-                            Data2 = json.load(File2)
-                            if targetWarningCount >= Data2["WarningLimit"]:
-                                targetWarningCount -= Data2["WarningLimit"]
-                                punishTime = Data2["DefaultPunishTime"]
-                                await GuildUser.punish(self = self, ctx = ctx, target = target, Time = punishTime)
-                        except Exception as E:
-                            await ctx.send(f"E: {E}")
-                except KeyError:
-                    Data = json.load(File)
-                    loadData = {target.id: amount}
-                    temp = Data["warnings"]
-                    temp.append(loadData)
-                    with open(F"/home/pi/Desktop/Bot/Data/Guild/{ctx.guild.id}/Warnings.json", "w", encoding = "utf-8") as File:
-                        pass
-                        json.dump(obj = loadData, fp = File, indent = 4)
+            jsonData.update(json.load(fp=open(f"{Path}/{ctx.guild.id}/Members/WarningList.json", "r")))
+        except json.JSONDecodeError:
+            pass
         except FileNotFoundError:
-            with open(F"/home/pi/Desktop/Bot/Data/Guild/{ctx.guild.id}/Warnings.json", "x", encoding = "utf-8") as File:
+            open(f"{Path}/{ctx.guild.id}/Members/WarningList.json", "w").close()
+
+        with open(f"{Path}/{ctx.guild.id}/Members/WarningList.json", "w") as File:
+            try:
+                jsonData[str(target.id)]
+            except KeyError:
+                jsonData.update({ str(target.id): 0 })
+            finally:
+                jsonData[str(target.id)] += amount
+                json.dump(fp=File, obj=jsonData, indent=4)
+
+        Embed = discord.Embed(
+            title="성공",
+            description=f"현재 누적 경고: {str(jsonData[str(target.id)])}",
+            color=0xFF3333
+        )
+
+        if "PunishConfig.json" in os.listdir(f"{Path}/{ctx.guild.id}/") and Config["AutoPunish"] and \
+            jsonData[str(target.id)] <= Config["WarningLimit"]:
+                target.add_roles(get(ctx.guild.roles, id=PunishRole))
+                target.remove_roles(get(ctx.guild.roles, id=DefaultRole))
+                Embed.set_footer(text="자동으로 징벌되었습니다.")
+
+                def cancelCheck(msg):
+                    return msg.message.author == ctx.message.author and msg.message.content in ["?cancelPunish", "?징벌취소"]
+                async def endPunish():
+                    await target.remove_roles(get(ctx.guild.roles, id=PunishRole))
+                    await target.add_roles(get(ctx.guild.roles, id=DefaultRole))
                 try:
-                    loadData = {"warnings": {target.id: amount}}
-                    json.dump(obj = Data, fp = File, indent = 4)
-                except Exception as E:
-                    await ctx.send(F"E: {E}")
+                    cancel = await self.client.wait_for(check=cancelCheck, timeout=Config)
+                except asyncio.TimeoutError:
+                    await endPunish()
+                    await ctx.send("징벌이 완료되었습니다.")
                 else:
-                    await ctx.send(f"{target.id}에게 경고를 줬습니다.")
+                    await endPunish()
+                    await ctx.send("징벌이 취소되었습니다.")
+
+        await ctx.send(embed=Embed)
 
 def setup(client):
     client.add_cog(GuildUser(client))

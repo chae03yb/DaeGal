@@ -49,15 +49,6 @@ class Others(commands.Cog):
 
             for i in range(0, itemAmount):
                 await msg.add_reaction(itemList[i])
-            """
-            def check(reaction, user):
-                return user == ctx.message.author and str(reaction.emoji)
-            
-            now = time.localtime()
-            
-            for now == 
-            """
-            # ✅를 반응으로 달 시 투표 종료 기능
-        
+    
 def setup(client):
     client.add_cog(Others(client))

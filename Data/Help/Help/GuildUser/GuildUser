@@ -1,0 +1,5 @@
+서버의 유저를 관리하는 카테고리입니다.
+
+명령어 목록
+`?kick`, `?ban`, `?punish`, 
+`?addRole`, `?rmRole`, `?warning`
