@@ -1,17 +1,13 @@
-**개발중**
-
 투표를 시작합니다
 
 서버 전용 메시지입니다.
 
 인수
-`Items`: 투표 항목
-투표 항목은 2~10개까지 가능합니다.
-`EndDate`: 종료일시
+`Items`: 투표 항목 (2~10개)
 `Description`: 투표 설명
 
 사용
-`?vote Items EndDate Description`
+`?vote <Items> <EndDate> <Description>`
 
 별칭
 `?투표`

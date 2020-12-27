@@ -1,6 +1,5 @@
-import discord
 from discord.ext import commands
-import os
+import Main
 
 DataPath = "/home/pi/Desktop/Bot/Data"
 
@@ -9,7 +8,9 @@ class CustomCommands(commands.Cog):
         self.client = client
     
     @commands.command(name="cmd")
+    @commands.check(Main.isOwner)
     async def cmd(self, ctx: commands.Context, option, title, *, command=None):
+        return await ctx.send("아직 개발중인 기능입니다.")
         # 미완성
         if option == "-s" or "--save":
             if command is None:
@@ -33,9 +34,17 @@ class CustomCommands(commands.Cog):
                     await ctx.send(F"E: {E}")
         else:
             return await ctx.send("유효하지 않은 옵션입니다.")
+    
+    @commands.group(name="shell")
+    @commands.check(Main.isOwner)
+    async def shell(self, ctx: commands.Context):
+        if ctx.invoked_subcommand is None:
+            return await ctx.send("실행할 명령어를 입력해주세요.")
 
     @commands.command(name="cmdedit")
+    @commands.check(Main.isOwner)
     async def cmdedit(self, ctx: commands.Context, option, title, *, command=None):
+        return
         if option == "-e" or "--edit":
             pass
         elif option == "-d" or "--delete":

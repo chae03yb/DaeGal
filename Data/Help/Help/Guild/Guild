@@ -1,0 +1,5 @@
+서버를 관리하는 명령어 카테고리입니다.
+
+명령어 목록
+`?setPunishRole`, `?setDefaultRole`, `?setBotRole`,
+`?setWelcomeMessage`, `?setWelcomeChannel`, `?clear`

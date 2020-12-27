@@ -5,7 +5,7 @@
 `Max`: 최대값
 
 사용
-`?random Min Max`
+`?random <Min> <Max>`
 
 별칭
 `?랜덤`

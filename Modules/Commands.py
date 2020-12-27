@@ -1,18 +1,13 @@
-import discord
 from discord.ext import commands
-from discord.utils import get
-
-import asyncio
+import CustomCommands as cmd
 
 class Commands(commands.Cog):
     def __init__(self, client):
         self.client = client
     
-    async def write(self, ctx, msg):
-        await ctx.send(str(msg))
-    
-    async def wait(self, ctx, time: float or int):
-        await asyncio.sleep(time)
+    @cmd.CustomCommands.shell.command(name = "write")
+    async def write(self, ctx: commands.Context, *, msg: str):
+        await ctx.send(msg)
 
 def setup(client):
     client.add_cog(Commands(client))

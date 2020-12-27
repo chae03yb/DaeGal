@@ -1,4 +1,4 @@
-from inspect import EndOfBlock
+import sqlite3
 import discord
 from discord.ext import commands
 
@@ -52,25 +52,31 @@ class User(commands.Cog):
 
     # @commands.command(name="test")
     # async def test(self, ctx: commands.Context):
-        # UserData = { str(ctx.message.author.id): "000000" }
-        # Data = None
-        # with open("/home/pi/Desktop/Bot/Data/User/UID.jsonc") as File:
-        #     nonlocal Data
-        #     Data = json.load(File)
-        # Data.update(UserData)
-        # with open("/home/pi/Desktop/Bot/Data/User/SID.jsonc") as File:
-        #     json.dump(fp=File, obj=Data)
-        # await ctx.send("asdf")
+    #     UserData = { str(ctx.message.author.id): "000000" }
+    #     Data = None
+    #     with open("/home/pi/Desktop/Bot/Data/User/UID.jsonc") as File:
+    #         nonlocal Data
+    #         Data = json.load(File)
+    #     Data.update(UserData)
+    #     with open("/home/pi/Desktop/Bot/Data/User/SID.jsonc") as File:
+    #         json.dump(fp=File, obj=Data)
+    #     await ctx.send("asdf")
 
-    @commands.command(name = "mUID", hidden = True)
-    async def makeUserID(self, ctx: commands.Context):
-        try:
-            with open("/home/pi/Desktop/User/UIDs.json", mode = "r+", encoding = "utf-8") as File:
-                Data = json.load(File)
-        except FileNotFoundError:
-            with open("/home/pi/Desktop/User/UIDs.json", mode = "w", encoding = "utf-8") as File:
-                pass
+    @commands.command(name="createUID")
+    async def UserID(self, ctx: commands.Context):
+        UserID    = None
+        ServiceID = None
+        con       = sqlite3.connect("/home/pi/Desktop/Bot/Data/User/SID-Data.sqlite3")
+        cur       = con.cursor()
+        UIDCount  = json.load(fp=open("/home/pi/Desktop/Bot/Data/User/SIDCount.json", "r"))["CurrentCount"]
+
+        if ctx.author.id in cur.execute("select * from Data where=?", (ctx.author.id)).fetchall:
+            await ctx.send("이미 존재함.")
+        # cur.execute("")
+        json.dump(fp=open("/home/pi/Desktop/Bot/Data/User/SIDCount.json", "w"), obj={"CurrentCount":UIDCount+1}, indent=4)
+
     R"""json으로 ID를 키, 번호를 값으로 하여 딕셔너리로 불러온 다음 for문과 items 함수로 ID를 찾는다"""
+    R"""SQL로 불러옴, [0]: SID, [1]: UID"""
 
 def setup(client):
     client.add_cog(User(client))

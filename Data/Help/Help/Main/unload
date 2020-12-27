@@ -4,7 +4,7 @@
 `Module`: 언로드할 모듈
 
 사용
-`?unload Module`
+`?unload <Module>`
 
 별칭
 `?-ext`, `?uload`

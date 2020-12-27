@@ -4,7 +4,7 @@
 `Module`: 모듈 이름
 
 사용
-`?load Module`
+`?load <Module>`
 
 별칭
 `?+ext`

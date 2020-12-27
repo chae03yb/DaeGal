@@ -1,8 +1,10 @@
 #!/usr/bin/python3
+
 import discord
 from discord.ext import commands
-
+import json
 import ConsoleColors as CC
+import Log
 
 client = commands.Bot(
     command_prefix="?",
@@ -11,44 +13,45 @@ client = commands.Bot(
 
 Modules = [
     "Bot",
-    # "Commands",
-    # "CustomCommands",
+#    "Commands",
+#    "CustomCommands",
     "Docs",
     "ErrorHandler",
     "Game",
     "Guild",
     "GuildUser",
-    # "MailService",
-    # "MusicTest",
+#    "Log",
+#    "MailService",
+#    "MusicTest",
     "Others",
     "User",
-    # "slashTest"
 ]
 
 adminID = (
     434549321216688128, # 샤프#8720
-    480977114980417538, # 잠ㅅ갊#3497 
+    480977114980417538, # 잠ㅅ갊#3497
     373473326179549205, # 샤프 마이크#4156
 )
 
-LogPath = "/home/pi/Desktop/Bot/Data/Log"
+DataPath = "/home/pi/Desktop/Bot/Data"
+LogPath = f"{DataPath}/Log"
 
-def isOwner(ctx):
+def isOwner(ctx: commands.Context):
     return ctx.author.id in adminID
 
 class Main(commands.Cog):
     def __init__(self, client: commands.Bot):
         self.client = client
-        self.DataPath = "/home/pi/Desktop/Bot/Data"
+        self.Modules = Modules
 
     @commands.Cog.listener()
     async def on_ready(self):
-        print(f"{CC.BG_RGB(0, 200, 0)} Logged in as {self.client.user} {CC.EFCT.CLEAR}")
-#        with open(f"{LogPath}/", "w") as LogFile:
-#            LogFile.write()
+        Log.loginCount_up()
+        Log.writeLog(f"Logged in as {self.client.user}")
+#        print(f"{CC.BG_RGB(0, 200, 0)} Logged in as {self.client.user} {CC.EFCT.CLEAR}")
         print("--------------------------------------------------")
 
-    @commands.command(name="load", aliases=["+ext"], hidden=True)
+    @commands.command(name="load", hidden=True)
     @commands.check(isOwner)
     async def loadEx(self, ctx: commands.Context, ext=None):
         if ext is None:
@@ -57,19 +60,21 @@ class Main(commands.Cog):
             try:
                 client.load_extension(ext)
                 Modules.append(ext)
+                Modules.sort()
                 await ctx.send(f"{ext}를 로드했습니다.")
-                print(f"{CC.TXT.BR_GREEN} Loaded Module: {ext} {CC.EFCT.CLEAR}")
+                Log.writeLog(f"Loaded Module: {ext}")
             except Exception as E:
                 await ctx.send(f"E: {E}")
 
-    @commands.command(name="unload", aliases=["-ext", "uload"], hidden=True)
+    @commands.command(name="unload", hidden=True)
     @commands.check(isOwner)
     async def unloadEx(self, ctx: commands.Context, ext=None):
         try:
             client.unload_extension(ext)
             Modules.remove(ext)
+            Modules.sort()
             await ctx.send(f"{ext}를 언로드했습니다.")
-            print(f"{CC.TXT.BR_RED} Unloaded Module: {ext} {CC.EFCT.CLEAR}")
+            Log.writeLog(f"Unloaded Module: {ext}")
         except Exception as E:
             await ctx.send(f"E: {E}")
     
@@ -79,36 +84,23 @@ class Main(commands.Cog):
         try:
             for ext in Modules:
                 client.reload_extension(ext)
-                print(f"{CC.TXT.BR_GREEN} Reloaded Module: {ext} {CC.EFCT.CLEAR}")
-            print("--------------------------------------------------")
+                Modules.sort()
+                Log.writeLog(f"Reloaded Module: {ext}")
             await ctx.send("모두 리로드했습니다.")
         except Exception as E:
             await ctx.send(E)
 
-    @commands.command(name="currentMainVer", aliases=["curMainVer"])
+    @commands.command(name="moduleslist")
+    @commands.check(isOwner)
+    async def modulesList(self, ctx: commands.Context):
+        Modules.sort()
+        for a in Modules: 
+            await ctx.send(a)
+
+    @commands.command(name="currentMainVer")
     @commands.check(isOwner)
     async def currentMainVer(self, ctx: commands.Context):
-        await ctx.send("VER: STABLE")
-
-"""
-...
-for Module in Modules:
-    try:
-        with open(F"{LogPath}/", "a") as LogFile:
-            LogFile.write(f"Loaded Module: {Module}")
-    except FileNotFoundError:
-        with open(F"{LogPath}/", "w") as LogFile:
-            LogFile.write(f"Loaded Module: {Module}")
-
-...
-except KeyboardInterrupt:
-    try:
-    with open(f"{LogPath}/", "a") as LogFile:
-        LogFile.write()
-except FileNotFoundError:
-    with open(F"{LogPath}/", "w") as LogFile:
-        LogFile.write()
-"""
+        await ctx.send("VER: TEST")
 
 if __name__ == "__main__":
     try:
@@ -117,11 +109,11 @@ if __name__ == "__main__":
         client.add_cog(Main(client))
         for Module in Modules:
             client.load_extension(Module)
-            print(f"Loaded Module: {Module}")
+            Log.writeLog(f"Loaded Module: {Module}")
         print("--------------------------------------------------")
         with open("/home/pi/Desktop/Bot/Token/Token", "r") as Token:
             client.run(Token.read())
     except KeyboardInterrupt:
-        pass
-    # except Exception as E:
-        # print(f"{CC.BG.RED} E: {E} {CC.EFCT.CLEAR}")
+        Log.writeLog("Terminated by KeyboardInterrupt")
+    except Exception as E:
+        Log.writeLog(f"Error: {E}")

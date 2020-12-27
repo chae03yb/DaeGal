@@ -1,9 +1,6 @@
-# 디스코드
 import discord
 from discord.ext import commands
 from discord import utils
-
-# 파이썬
 import json
 import os.path
 import asyncio
@@ -38,7 +35,7 @@ class Guild(commands.Cog):
         except FileNotFoundError:
             pass
 
-    @commands.command(name="setPunishRole", aliases=["징벌_역할_설정"])
+    @commands.command(name="setPunishRole", aliases=["정지_역할_설정"])
     @commands.has_permissions(administrator=True)
     @commands.guild_only()
     async def setPunishRole(self, ctx: commands.Context, role: discord.Role):
@@ -144,14 +141,19 @@ class Guild(commands.Cog):
     @commands.command(name="clear")
     @commands.has_permissions(administrator=True)
     @commands.guild_only()
-    async def clear(self, ctx: commands.Context, amount: int):
-        if amount <= 0:
-            return await ctx.send("0보다 큰 정수를 입력해주세요.")
+    async def advanced_clear(self, ctx: commands.Context, reach: int, *, keyword=None):
+        # 특정 사용자의 메시지 삭제 기능 추가
+        if reach <= 0:
+            return await ctx.send("범위는 1 이상의 정수로 입력해주세요.")
+        elif keyword is None:
+            await ctx.channel.purge(limit=reach + 1)
         else:
-            await ctx.channel.purge(limit=amount + 1)
-
-    # @commands.command(name="createChannel", aliases=["채널생성", "+채널", "+channel"])
-    # async def createChannel(self, ctx: commands.Context, channelName=None, )
+            def check(ctx: commands.Context):
+                if keyword == None:
+                    return True
+                else:
+                    return ctx.content in str(keyword)
+            await ctx.channel.purge(limit=reach, check=check)
 
 def setup(client):
     client.add_cog(Guild(client))

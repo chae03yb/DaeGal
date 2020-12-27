@@ -1,14 +1,7 @@
 import discord
 from discord.ext import commands
-
 import os
-import os.path
 import asyncio
-
-from discord.file import File
-
-import Main
-
 Path = f"/home/pi/Desktop/Bot/Data"
 
 class Docs(commands.Cog):
@@ -23,47 +16,55 @@ class Docs(commands.Cog):
         except AttributeError:
             pass
         Path = "/home/pi/Desktop/Bot/Data/Help/Help"
-        if Target is None:
-            NoCat = []
-            Embed = discord.Embed(
-                title="명령어 목록",
-                description="`(카테고리)/(명령어)` 형식으로 명령어 확인 가능",
-                color=0x7289DA
-            )
-
-            for Category in os.listdir(Path):
-                if os.path.isdir(f"{Path}/{Category}"):
-                    commandsList = []
-                    for command in os.listdir(f"{Path}/{Category}"):
-                        commandsList.append(f"`{command}`")
-                    Embed.add_field(name=Category, value=", ".join(commandsList))
-                else:
-                    NoCat.append(f"`{Category}`")
-
-            if bool(NoCat) == True:
-                Embed.add_field(name="기타", value=", ".join(NoCat))
-
-            Embed.set_footer(text="기타 도움말: ?help info")
-            await ctx.send(embed=Embed)
-        else:
-            if os.path.isdir(f"{Path}/{Target}"):
+        try:
+            if Target is None:
+                NoCat = []
                 Embed = discord.Embed(
                     title="명령어 목록",
-                    description=f"카테고리: {Target}",
+                    description="`(카테고리)/(명령어)` 형식으로 명령어 확인 가능",
                     color=0x7289DA
                 )
-                Embed.add_field(name=Target, value="`"+"`, `".join(os.listdir(f"{Path}/{Target}"))+"`")
+
+                for Category in os.listdir(Path):
+                    if os.path.isdir(f"{Path}/{Category}"):
+                        commandsList = []
+                        for command in os.listdir(f"{Path}/{Category}"):
+                            commandsList.append(f"`{command}`")
+                        Embed.add_field(name=Category, value=", ".join(commandsList))
+                    else:
+                        NoCat.append(f"`{Category}`")
+
+                if bool(NoCat) == True:
+                    Embed.add_field(name="기타", value=", ".join(NoCat))
+
                 Embed.set_footer(text="기타 도움말: ?help info")
                 await ctx.send(embed=Embed)
             else:
-                with open(f"{Path}/{Target}", "r") as File:
+                if os.path.isdir(f"{Path}/{Target}"):
                     Embed = discord.Embed(
-                        title=f"{Target} 도움말",
-                        description=File.read(),
+                        title="명령어 목록",
+                        description=f"카테고리: {Target}",
                         color=0x7289DA
                     )
+                    Embed.add_field(name=Target, value="`"+"`, `".join(os.listdir(f"{Path}/{Target}"))+"`")
                     Embed.set_footer(text="기타 도움말: ?help info")
                     await ctx.send(embed=Embed)
+                else:
+                    with open(f"{Path}/{Target}", "r") as File:
+                        Embed = discord.Embed(
+                            title=f"{Target} 도움말",
+                            description=File.read(),
+                            color=0x7289DA
+                        )
+                        Embed.set_footer(text="기타 도움말: ?help info")
+                        await ctx.send(embed=Embed)
+        except FileNotFoundError:
+            Embed = discord.Embed(
+                title="오류",
+                description="도움말을 찾지 못했습니다.",
+                color=0xFF0000
+            )
+            await ctx.send(embed=Embed)
     
     @commands.command(name="memo", aliases=["메모"])
     async def memo(self, ctx: commands.Context, TargetMemo=None):
@@ -110,9 +111,14 @@ class Docs(commands.Cog):
                     await msg.delete(delay=3)
                 else:
                     async def writeFile():
-                        with open(f"{Path}/Guild/{ctx.guild.id}/Memo/{TargetMemo}", "w") as File:
-                            File.write(Memo.content)
-                            await ctx.send("완료.")
+                        try:
+                            open(f"{Path}/Guild/{ctx.guild.id}/Memo/{TargetMemo}", "w").close()
+                        except FileNotFoundError:
+                            pass
+                        finally:
+                            with open(f"{Path}/Guild/{ctx.guild.id}/Memo/{TargetMemo}", "w") as File:
+                                File.write(Memo.content)
+                                await ctx.send("완료.")
                     try:
                         await writeFile()
                     except FileNotFoundError:
@@ -151,8 +157,16 @@ class Docs(commands.Cog):
                 for result in os.listdir(f"{Path}/Guild/{ctx.guild.id}/Memo/"):
                     if TargetMemo in result:
                         searchResult.append(f"`{result}`")
-                Embed = discord.Embed( title=f"검색 결과: {TargetMemo}" )
-                Embed.add_field(name="결과", value=f", ".join(searchResult))
+
+                Embed = None
+                if not searchResult:  
+                    Embed = discord.Embed(
+                        title=f"검색: {TargetMemo}",
+                        description="검색 결과가 없습니다."
+                    )
+                else:
+                    Embed = discord.Embed(title=f"검색 결과: {TargetMemo}")
+                    Embed.add_field(name="결과", value=f", ".join(searchResult))
                 await ctx.send(embed=Embed)
 
 def setup(client):

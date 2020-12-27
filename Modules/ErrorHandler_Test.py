@@ -1,13 +1,15 @@
 import discord
 from discord.ext import commands
-import ConsoleColors as CC
+import Log
 
-class ErrorHandler(commands.Cog):
+LogPath = "/home/pi/Desktop/Bot/Data/Log"
+
+class ErrorHandler_(commands.Cog):
     def __init__(self, client):
         self.client = client
 
     @commands.Cog.listener()
-    async def on_command_error(self, ctx, error):
+    async def on_command_error_(self, ctx, error):
         if isinstance(error, commands.errors.CommandNotFound):
             return
         elif isinstance(error, commands.errors.CommandOnCooldown):
@@ -27,8 +29,8 @@ class ErrorHandler(commands.Cog):
                 color=0xFF3333
             )
             # await ctx.send(embed=Embed)
-            print(f"{CC.BG.RED} E: {error} {CC.EFCT.CLEAR}")
+            Log.writeLog(f"Error: {error}")
             await ctx.send(f"E: {error}")
 
 def setup(client):
-    client.add_cog(ErrorHandler(client))
+    client.add_cog(ErrorHandler_(client))

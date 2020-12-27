@@ -2,6 +2,7 @@ Data/Game
 Data/Guild
 Data/Mail
 Data/User
+Data/Log
 Token/
 Modules/__pycache__/
 SimpleSQL/

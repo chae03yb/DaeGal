@@ -1,10 +1,7 @@
-import discord
-from discord import utils
 from discord.ext import commands
-
+import re
 import asyncio
 import youtube_dl
-import queue
 
 class Music(commands.Cog):
     def __init__(self, client):
@@ -34,8 +31,6 @@ class Music(commands.Cog):
             return await ctx.send("플레이리스트, 혹은 URL이 필요합니다.")
         else:
             MusicList = list(url)
-
-            
     
     @commands.command(name="MdownloadMusic", aliases=["MgetMusic"])
     async def downloadMusic(self, ctx: commands.Context, url=None, musicName=None, composer=None, saveName=None):
@@ -48,20 +43,20 @@ class Music(commands.Cog):
         if saveName is None:
             return await ctx.send("저장할 이름이 필요합니다.")
         else:
-            opts = {
+            opts = None
+            """{
                 "format": "bestaudio/best",
-                "outtmpl": "/home/pi/Desktop/Bot/Data/MusicCache",
+                "outtmpl": f"/home/pi/Desktop/Bot/Data/MusicCache/{saveName}",
+                "quiet": True,
                 "postprocessors": [{
                     "key": "FFmpegExtractAudio",
                     "preferredcodec": "mp3",
                     "preferredquality": "192",
                 }],
-            }
-            try:
-                with youtube_dl.YoutubeDL(opts) as ydl:
-                    ydl.download(url)
-            except Exception as E:
-                await ctx.send(f"E: {E}")
+            }"""
+            checkRE = re.compile(r"(?P<http>http(?s))(^://)(youtu.be|youtube.com)(^/)([\d\w])")
+            with youtube_dl.YoutubeDL(opts) as ydl:
+                ydl.download(url)
                 
 def setup(client):
     client.add_cog(Music(client))

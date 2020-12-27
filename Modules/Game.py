@@ -1,13 +1,5 @@
-# 디스코드
-import discord
 from discord.ext import commands
-from discord.utils import get
-
-# 파이썬
-import os
 import random
-import json
-import asyncio
 
 class Game(commands.Cog):
     def __init__(self, client):
