@@ -4,4 +4,4 @@
 `target`: 정지된 대상의 멘션 또는 유저명
 
 사용
-`cancelPunish <target>`
+`cancelpunish <target>`

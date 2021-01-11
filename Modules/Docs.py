@@ -68,15 +68,20 @@ class Docs(commands.Cog):
     
     @commands.command(name="memo", aliases=["메모"])
     async def memo(self, ctx: commands.Context, TargetMemo=None):
+        if TargetMemo is None:
+            return await ctx.send("메모의 제목도 함께 써주십시오")
+        if "/" in TargetMemo or "." in TargetMemo:
+            return await ctx.send("허용되지 않은 문자가 있습니다")
+        SavePath = None 
+        try:
+            SavePath = f"{Path}/Guild/{ctx.guild.id}/Memo"
+        except AttributeError:
+            SavePath = f"{Path}/User/{ctx.author.id}/Memo"
         ErrorEmbed = discord.Embed(
             title="오류",
             description="시간 초과.",
             color=0xFF0303
         )
-        if TargetMemo is None:
-            return await ctx.send("메모의 제목도 함께 써주십시오")
-        if "/" in TargetMemo or "." in TargetMemo:
-            return await ctx.send("허용되지 않은 문자가 있습니다")
         Embed = discord.Embed(
             title="메모",
             description="📝: 메모 쓰기\n" \
@@ -110,24 +115,21 @@ class Docs(commands.Cog):
                     await ctx.send(embed=ErrorEmbed)
                     await msg.delete(delay=3)
                 else:
-                    async def writeFile():
-                        try:
-                            open(f"{Path}/Guild/{ctx.guild.id}/Memo/{TargetMemo}", "w").close()
-                        except FileNotFoundError:
-                            pass
-                        finally:
-                            with open(f"{Path}/Guild/{ctx.guild.id}/Memo/{TargetMemo}", "w") as File:
-                                File.write(Memo.content)
-                                await ctx.send("완료.")
                     try:
-                        await writeFile()
+                        open(f"{SavePath}/{TargetMemo}", "w").close()
                     except FileNotFoundError:
-                        os.mkdir(f"{Path}/Guild/{ctx.guild.id}/Memo")
-                        await writeFile()
+                        try:
+                            os.mkdir(SavePath)
+                        except AttributeError:
+                            os.mkdir(SavePath)
+                    finally:
+                        with open(f"{SavePath}/{TargetMemo}", "w") as File:
+                            File.write(Memo.content)
+                            await ctx.send("완료.")
 
             elif reaction == "🔍":
                 try:
-                    with open(f"{Path}/Guild/{ctx.guild.id}/Memo/{TargetMemo}") as Memo:
+                    with open(f"{SavePath}/{TargetMemo}") as Memo:
                         Embed = discord.Embed(
                             title=f"메모: {TargetMemo}",
                             description=Memo.read()
@@ -147,14 +149,14 @@ class Docs(commands.Cog):
                     # return "시간 초과"
                 else:
                     try:
-                        os.remove(f"{Path}/Guild/{ctx.guild.id}/Memo/{TargetMemo}")
+                        os.remove(f"{SavePath}/{TargetMemo}")
                         await ctx.send("삭제 완료")
                     except FileNotFoundError:
                         await ctx.send("메모가 없습니다.")
             
             elif reaction == "📁":
                 searchResult = []
-                for result in os.listdir(f"{Path}/Guild/{ctx.guild.id}/Memo/"):
+                for result in os.listdir(SavePath):
                     if TargetMemo in result:
                         searchResult.append(f"`{result}`")
 

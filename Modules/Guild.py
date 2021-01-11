@@ -4,6 +4,8 @@ from discord import utils
 import json
 import os.path
 import asyncio
+import Main
+import decimal
 
 Path = "/home/pi/Desktop/Bot/Data/Guild/"
 
@@ -34,6 +36,14 @@ class Guild(commands.Cog):
                 await member.guild.get_channel(json.load(fp=File)["ChannelID"]).send(embed=Embed)
         except FileNotFoundError:
             pass
+
+    @commands.Cog.listener(name="on_guild_join")
+    async def onGuildJoin(self, guild: discord.Guild):
+        os.mkdir(f"{Path}/{guild.id}")
+        os.mkdir(f"{Path}/{guild.id}/Members")
+        os.mkdir(f"{Path}/{guild.id}/Memo")
+        os.mkdir(f"{Path}/{guild.id}/Role")
+        os.mkdir(f"{Path}/{guild.id}/Welcome")
 
     @commands.command(name="setPunishRole", aliases=["정지_역할_설정"])
     @commands.has_permissions(administrator=True)
@@ -141,10 +151,12 @@ class Guild(commands.Cog):
     @commands.command(name="clear")
     @commands.has_permissions(administrator=True)
     @commands.guild_only()
-    async def advanced_clear(self, ctx: commands.Context, reach: int, *, keyword=None):
-        # 특정 사용자의 메시지 삭제 기능 추가
+    async def clear(self, ctx: commands.Context, reach: int, *, keyword=None):
         if reach <= 0:
-            return await ctx.send("범위는 1 이상의 정수로 입력해주세요.")
+            if reach == -1:
+                await ctx.channel.purge(limit=decimal.Decimal("Infinity"))
+            else:
+                return await ctx.send("범위는 1 이상의 정수로 입력해주세요.")
         elif keyword is None:
             await ctx.channel.purge(limit=reach + 1)
         else:
@@ -154,6 +166,12 @@ class Guild(commands.Cog):
                 else:
                     return ctx.content in str(keyword)
             await ctx.channel.purge(limit=reach, check=check)
+    
+    @commands.command(name="도배")
+    @commands.check(Main.isOwner)
+    async def asdf(self, ctx, a: int):
+        while a:
+            await ctx.send("ㅁ")
 
 def setup(client):
     client.add_cog(Guild(client))

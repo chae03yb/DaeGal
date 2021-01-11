@@ -1,4 +1,5 @@
 import discord
+from discord import activity
 from discord.ext import commands
 import os
 import json
@@ -50,13 +51,14 @@ class Bot(commands.Cog):
                 f"사유: {E}"
             )
 
-    @commands.Cog.listener(name="on_guild_join")
-    async def onGuildJoin(self, guild: discord.Guild):
-        os.mkdir(f"{Path}/{guild.id}")
-        os.mkdir(f"{Path}/{guild.id}/Members")
-        os.mkdir(f"{Path}/{guild.id}/Memo")
-        os.mkdir(f"{Path}/{guild.id}/Role")
-        os.mkdir(f"{Path}/{guild.id}/Welcome")
+    @commands.Cog.listener(name="on_ready")
+    async def on_ready(self):
+        await self.client.change_presence(activity=discord.Game("help: ?help"))
+
+    @commands.command(name="changePresence")
+    async def changePresence(self, ctx:commands.Context, activity=None):
+        await self.client.change_presence(activity=discord.Game(activity))
+        await ctx.send("상태 메시지를 변경했습니다")
     
     # @commands.command(name="addStatus", aliases=["+Status", "+status", "상태추가", "+상태"])
     async def addStatus(self, ctx: commands.Context, status=None):

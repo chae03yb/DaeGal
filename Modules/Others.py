@@ -59,7 +59,6 @@ class Others(commands.Cog):
     async def byteConverter(self, ctx:commands.Context, byte:None, to="GB"):
         if byte is None:
             return await ctx.send("변환할 크기를 입력해야 합니다.")
-        
 
 def setup(client):
     client.add_cog(Others(client))
