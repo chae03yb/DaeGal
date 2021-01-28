@@ -1,0 +1,12 @@
+투표를 시작합니다
+서버 전용 명령어입니다
+
+인수
+`Items`: 투표 항목 (2~10개)
+`Description`: 투표 설명
+
+사용
+`?vote <Items> <Description>`
+
+별칭
+`?투표`

@@ -26,7 +26,7 @@ class ErrorHandler_(commands.Cog):
             Embed = discord.Embed(
                 title="오류",
                 description=error,
-                color=0xFF3333
+                color=0xFF0000
             )
             # await ctx.send(embed=Embed)
             Log.writeLog(f"Error: {error}")

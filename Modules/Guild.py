@@ -5,7 +5,6 @@ import json
 import os.path
 import asyncio
 import Main
-import decimal
 
 Path = "/home/pi/Desktop/Bot/Data/Guild/"
 
@@ -83,7 +82,7 @@ class Guild(commands.Cog):
     @commands.guild_only()
     async def setWelcomeChannel(self, ctx: commands.Context, channel:discord.TextChannel=None):
         if channel is None:
-            await ctx.send("채널 이름/채널 멘션이 필요합니다.")
+            await ctx.send("채널 언급/채널 이름이 필요합니다.")
         else:
             try:
                 await ctx.send("환영 메시지를 보낼 채널을 멘션해주십시오")
@@ -107,7 +106,7 @@ class Guild(commands.Cog):
     async def setWelcomeMsg(self, ctx: commands.Context, option=None):
         if option == "del":
             os.remove(f"{Path}/{ctx.guild.id}/Welcome/Msg")
-            return
+            await ctx.send("삭제 완료")
         try:
             async def setMessage(msg):
                 return msg.message.content and msg.message.author == ctx.message.author
@@ -116,19 +115,23 @@ class Guild(commands.Cog):
                 title="환영 메세지의 내용을 입력해주세요"
             )
             await ctx.send(embed=Embed)
-            Message = await self.client.wait_for(event="on_message", timeout=500.0, check=setMessage)
+            Message = await self.client.wait_for(event="message", timeout=500.0, check=setMessage)
         except asyncio.TimeoutError:
             await ctx.send("시간 초과")
         else:
             if Message == "None":
-                await ctx.send("설정을 종료합니다")
-                return
+                return await ctx.send("설정을 종료합니다")
             try:
                 with open(f"{Path}/{ctx.guild.id}/Welcome/Message", "w") as File:
                     File.write(Message)
                     await ctx.send("메세지 설정 완료")
             except Exception as E:
-                await ctx.send(E)
+                Embed = discord.Embed(
+                    title="오류",
+                    description=f"```{E}```",
+                    color=0xFF0000
+                )
+                await ctx.send(embed=Embed)
 
         """if message is None:
             await ctx.send("환영 메세지의 내용을 입력해주세요")
@@ -152,26 +155,25 @@ class Guild(commands.Cog):
     @commands.has_permissions(administrator=True)
     @commands.guild_only()
     async def clear(self, ctx: commands.Context, reach: int, *, keyword=None):
-        if reach <= 0:
-            if reach == -1:
-                await ctx.channel.purge(limit=decimal.Decimal("Infinity"))
+        try:
+            if reach <= 0:
+                return await ctx.send("범위는 0보다 큰 정수로 입력해주세요.")
+            elif keyword is None:
+                await ctx.channel.purge(limit=reach + 1)
             else:
-                return await ctx.send("범위는 1 이상의 정수로 입력해주세요.")
-        elif keyword is None:
-            await ctx.channel.purge(limit=reach + 1)
-        else:
-            def check(ctx: commands.Context):
-                if keyword == None:
-                    return True
-                else:
-                    return ctx.content in str(keyword)
-            await ctx.channel.purge(limit=reach, check=check)
+                def check(ctx: commands.Context):
+                    if keyword == None:
+                        return True
+                    else:
+                        return ctx.content in str(keyword)
+                await ctx.channel.purge(limit=reach + 1, check=check)
+        except Exception as E:
+            errEmbed = discord.Embed(
+                title="오류",
+                description=f"{E}",
+                color=0xFF0000
+            )
+            await ctx.send(embed=errEmbed)
     
-    @commands.command(name="도배")
-    @commands.check(Main.isOwner)
-    async def asdf(self, ctx, a: int):
-        while a:
-            await ctx.send("ㅁ")
-
 def setup(client):
     client.add_cog(Guild(client))

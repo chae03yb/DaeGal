@@ -1,0 +1,394 @@
+{
+    "`bot`": {
+        "`info`": {
+            "type": "info",
+            "description": "봇과 관련된 명령어 카테고리입니다\nㅤ",
+            "commandList": [
+                "`invite`",
+                "`ping`",
+                "`sleep`"
+            ]
+        },
+        "`invite`": {
+            "type": "command",
+            "description": "봇의 초대 링크를 보냅니다\nㅤ",
+            "arguments": [],
+            "use": "`?invite`",
+            "aliases": [
+                "`?초대`"
+            ]
+        },
+        "`ping`": {
+            "type": "command",
+            "description": "pong! 메세지와 지연시간을 ms 단위를 보냅니다\nㅤ",
+            "arguments": [],
+            "use": "`?ping`",
+            "aliases": [
+                "`?핑`"
+            ]
+        },
+        "`sleep`": {
+            "type": "command",
+            "description": "봇을 종료합니다\nㅤ",
+            "arguments": [],
+            "use": "`?sleep`",
+            "aliases": []
+        }
+    },
+    "`docs`": {
+        "`info`": {
+            "type": "info",
+            "description": "문서를 관리하는 카테고리입니다\nㅤ",
+            "commandList": [
+                "`help`", 
+                "`Memo`"
+            ]
+        },
+        "`memo`": {
+            "type": "command",
+            "description": "메모를 관리합니다\nㅤ",
+            "arguments": [
+                "`MemoName`: 메모의 이름입니다\n메모 이름에는 `.`, `/` 문자는 들어갈 수 없습니다"
+            ],
+            "use": "`?memo <MemoName>`\n\n📝: 메모 쓰기\n🔍: 메모 보기\n🗑: 메모 삭제\n📁: 메모 검색",
+            "aliases": [
+                "`?메모`"
+            ]
+        },
+        "`help`": {
+            "type": "command",
+            "description": "도움말을 보여줍니다",
+            "arguments": [
+                "`Category`: 카테고리 이름",
+                "`Command`: 명령어 이름"
+            ],
+            "use": "사용\n`?help [Category] [Command]`\n\n`?help`: 카테고리 목록을 보여줍니다\n`?help [Category]`: 카테고리 내의 명령어 목록을 보여줍니다\n`?help [Category] [Command]`: 명령어 도움말을 보여줍니다",
+            "aliases": [
+                "`?Help`",
+                "`?도움`", 
+                "`?도움말`"
+            ]
+        }
+    },
+    "`game`": {
+        "`info`": {
+            "type": "info",
+            "description": "간단한 오락 카테고리입니다",
+            "commandList": [
+                "`?random`", 
+                "`?dice`", 
+                "`?choice`"
+            ]
+        },
+        "`dice`": {
+            "type": "command",
+            "description": "1~6 사이의 무작위 수를 뽑습니다",
+            "arguments": [],
+            "use": "`?dice`",
+            "aliases": [
+                "`?주사위`"
+            ]
+        },
+        "`random`": {
+            "type": "command",
+            "description": "두 인자 사이의 무작위 정수 값을 뽑습니다",
+            "arguments": [
+                "`Min`: 최소값",
+                "`Max`: 최대값"
+            ],
+            "use": "`?random <Min> <Max>`",
+            "aliases": [
+                "`?랜덤`"
+            ]
+        }
+    },
+    "`guild`": {
+        "`info`": {
+            "type": "info",
+            "description": "서버를 관리하는 명령어 카테고리입니다",
+            "commandList": [
+                "`?setPunishRole`", 
+                "`?setDefaultRole`", 
+                "`?setBotRole`", 
+                "`?setWelcomeMessage`", 
+                "`?setWelcomeChannel`", 
+                "`?clear`"
+            ]
+        },
+        "`clear`": {
+            "type": "command",
+            "description": "채널의 메세지를 입력받은 수 만큼 삭제합니다",
+            "arguments": [
+                "`reach`: 1 이상의 정수",
+                "`keyword`: 키워드"
+            ],
+            "use": "`?clear <reach> [keyword]`",
+            "aliases": []
+        },
+        "`setBotRole`": {
+            "type": "command",
+            "description": "서버에 입장하는 봇에게 자동으로 부여할 역할을 설정합니다",
+            "arguments": [
+                "`role`: 역할 언급/역할 이름"
+            ],
+            "use": "`?setBotRole <role>`",
+            "aliases": [
+                "`?봇_역할_설정`"
+            ]
+        },
+        "`setDefaultRole": {
+            "type": "command",
+            "description": "서버에 입장하는 유저에게 자동으로 부여될 역할을 설정합니다\n또한 `?punish` 명령어의 제재가 끝난 후 자동으로 부여되는 역할입니다",
+            "arguments": [
+                "`role`: 역할 언급/역할 이름"
+            ],
+            "use": "`?setDefaultRole <role>`",
+            "aliases": [
+                "`?기본_역할_설정`"
+            ]
+        },
+        "`setPunishRole": {
+            "type": "command",
+            "description": "정지를 받는 역할을 설정합니다\n이 역할은 `?punish` 명령어에서 사용합니다",
+            "arguments": [
+                "`role`: 역할 언급/역할 이름"
+            ],
+            "use": "`?setPunishRole <role>`",
+            "aliases": [
+                "`?정지_역할_설정`"
+            ]
+        },
+        "`setWelcomeChannel`": {
+            "type": "command",
+            "description": "입장시 환영 메세지를 보낼 채널을 설정합니다",
+            "arguments": [
+                "`channel`: 채널 언급/채널 이름"
+            ],
+            "use": "`?setWelcomeChannel <channel>`",
+            "aliases": []
+        },
+        "`setWelcomeMsg`": {
+            "type": "command",
+            "description": "입장시 보낼 환영 메세지를 설정합니다",
+            "arguments": [
+                "`message`: 메세지"
+            ],
+            "use": "`?setWelcomeMsg <message>`",
+            "aliases": []
+        }
+    },
+    "`guilduser`": {
+        "`info`": {
+            "type": "info",
+            "description": "서버의 유저를 관리하는 카테고리입니다\n이 카테고리의 명령어는 관리자 권한이 필요합니다",
+            "commandList": [
+                "`?kick`", 
+                "`?ban`", 
+                "`?punish`", 
+                "`?cancelPunish`",
+                "`?addRole`", 
+                "`?rmRole`", 
+                "`?warning`"
+            ]
+        },
+        "`kick`": {
+            "type": "command",
+            "description": "대상을 서버에서 추방합니다",
+            "arguments": [
+                "`target`: 유저 언급/유저 이름"
+            ],
+            "use": "`?kick <target>`",
+            "aliases": [
+                "`추방`"
+            ]
+        },
+        "`ban`": {
+            "type": "command",
+            "description": "대상을 서버에서 차단합니다",
+            "arguments": [
+                "`target`: 유저 언급/유저 이름"
+            ],
+            "use": "`?ban <target>`",
+            "aliases": [
+                "`차단`",
+                "`밴`"
+            ]
+        },
+        "`punish`": {
+            "type": "command",
+            "description": "대상을 서버에서 정지시킵니다",
+            "arguments": [
+                "`target`: 유저 언급/유저 이름",
+                "`time`: 0 이상의 수"
+            ],
+            "use": "`?punish <target> <time>",
+            "aliases": [
+                "`정지`"
+            ]
+        },
+        "`cancelpunish`": {
+            "type": "command",
+            "description": "정지된 대상을 정지 해제합니다",
+            "arguments": [
+                "`target`: 정지된 유저 언급/이름"
+            ],
+            "use": "`cancelpunish <target>`",
+            "aliases": [
+                "`정지취소`"
+            ]
+        },
+        "`addrole`": {
+            "type": "command",
+            "description": "대상에게 역할을 부여합니다",
+            "arguments": [
+                "`target`: 유저 언급/유저 이름",
+                "`role`: 역할 언급/역할 이름"
+            ],
+            "use": "`?addRole <target> <role>`",
+            "aliases": [
+                "`+role`",
+                "`+역할`"
+            ]
+        },
+        "`rmrole`": {
+            "type": "command",
+            "description": "대상의 역할을 제거합니다",
+            "arguments": [
+                "`target`: 유저 언급/유저 이름",
+                "`role`: 역할 언급/역할 이름"
+            ],
+            "use": "`?rmRole <target> <role>`",
+            "aliases": [
+                "`-role`",
+                "`-역할`"
+            ]
+        },
+        "`warning`": {
+            "type": "command",
+            "description": "경고 명령어입니다",
+            "arguments": [
+                "`warning`: 대상에게 경고를 줍니다\nㅤ`target`: 경고를 줄 대상\nㅤ`amount`: 경고 횟수",
+                "`view`: 대상의 경고 횟수를 확인합니다\nㅤ`target`: 확인할 대상\nㅤ기본값은 자신입니다"
+            ],
+            "use": "`?warnings <warning|view> <target> [amount]`",
+            "aliases": []
+        }
+    },
+    "`mailservice`": {
+        "`info`": {
+            "type": "info",
+            "description": "메일을 관리합니다.\n **개발중** ",
+            "commandList": [
+                "`mail`"
+            ]
+        },
+        "`mail`": {
+            "type": "command",
+            "description": "메일을 관리합니다\n\nDM 전용 명령어\n\n**개발중**",
+            "arguments": [
+                "✉️: 메일 목록",
+                "📩: 받은 메일",
+                "📨: 메일 쓰기",
+                "⚙️: 설정"
+            ],
+            "use": "`?mail`",
+            "aliases": [
+                "`?메일`"
+            ]
+        }
+    },
+    "`main`": {
+        "`info`": {
+            "type": "info",
+            "description": "모듈을 관리합니다",
+            "commandList": [
+                "`?load`", 
+                "`?unload`", 
+                "`?reload`"
+            ]
+        },
+        "`load`": {
+            "type": "command",
+            "description": "모듈을 로드합니다\n\n**개발자 전용**",
+            "arguments": [
+                "`Module`: 모듈명"
+            ],
+            "use": "`?load <Module>`",
+            "aliases": [
+                "`?+ext`"
+            ]
+        },
+        "`unload`": {
+            "type": "command",
+            "description": "모듈을 언로드합니다\n\n**개발자 전용**",
+            "arguments": [
+                "`Module`: 모듈명"
+            ],
+            "use": "`?unload <Module>`",
+            "aliases": [
+                "`?-ext`",
+                "`?uload`"
+            ]
+        },
+        "`reload`": {
+            "type": "command",
+            "description": "모든 모듈을 다시 로드합니다\n\n**개발자 전용**",
+            "arguments": [],
+            "use": "`?reload`",
+            "aliases": []
+        }
+    },
+    "`others`": {
+        "`info`": {
+            "type": "info",
+            "description": "잡다한 명령어 카테고리입니다",
+            "commandList": [
+                "`?vote`"
+            ]
+        },
+        "`vote`": {
+            "type": "command",
+            "description": "투표를 시작합니다\n\n서버 전용 명령어",
+            "arguments": [
+                "`Items`: 투표 항목 (2~10개)",
+                "`Description`: 투표 설명"
+            ],
+            "use": "`?vote <Items> <Description>`",
+            "aliases": [
+                "`?투표`"
+            ]
+        }
+    },
+    "`user`": {
+        "`info`": {
+            "type": "info",
+            "description": "유저에 관련된 명령어 카테고리입니다",
+            "commandList": [
+                "`?profile`", 
+                "`?EditProfile`"
+            ]
+        },
+        "`profile`": {
+            "type": "command",
+            "description": "멘션한 유저/자신의 프로필을 봅니다",
+            "arguments": [
+                "`User`: 유저 언급/유저 이름"
+            ],
+            "use": "`?profile <User>`",
+            "aliases": [
+                "`프로필`"
+            ]
+        },
+        "`?EditProfile`": {
+            "type": "command",
+            "description": "자신의 프로필을 수정합니다",
+            "arguments": [
+                "`Msg`: 프로필 소개 메세지"
+            ],
+            "use": "`?EditProfile <Msg>`",
+            "aliases": [
+                "`프로필수정`"
+            ]
+        }
+    }
+}

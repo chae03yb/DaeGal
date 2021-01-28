@@ -2,9 +2,7 @@
 
 import discord
 from discord.ext import commands
-import json
 import ConsoleColors as CC
-import Log
 
 client = commands.Bot(
     command_prefix="?",
@@ -46,7 +44,7 @@ class Main(commands.Cog):
 
     @commands.Cog.listener()
     async def on_ready(self):
-        Log.loginCount_up()
+        Log.increaseLoginCount()
         Log.writeLog(f"Logged in as {self.client.user}")
 #        print(f"{CC.BG_RGB(0, 200, 0)} Logged in as {self.client.user} {CC.EFCT.CLEAR}")
         print("--------------------------------------------------")

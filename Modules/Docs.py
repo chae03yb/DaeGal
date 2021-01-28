@@ -1,17 +1,23 @@
 import discord
 from discord.ext import commands
+
 import os
 import asyncio
+import json
+from os.path import join
+from re import split
+
 Path = f"/home/pi/Desktop/Bot/Data"
 
 class Docs(commands.Cog):
     def __init__(self, client):
         self.client = client
     
-    @commands.command(name="Help", aliases=["도움말", "help", "도움"])
-    async def Help(self, ctx: commands.Context, Target: str=None):
+    # @commands.command(name="Help", aliases=["도움말", "help", "도움"])
+    async def Help(self, ctx: commands.Context, Target=None):
+        return await ctx.send("재작업중....")
         try:
-            if Target.startswith("." or " "):
+            if Target.startswith("." or "/"):
                 return
         except AttributeError:
             pass
@@ -21,22 +27,43 @@ class Docs(commands.Cog):
                 NoCat = []
                 Embed = discord.Embed(
                     title="명령어 목록",
-                    description="`(카테고리)/(명령어)` 형식으로 명령어 확인 가능",
+                    # description="`(카테고리)/(명령어)` 형식으로 명령어 확인 가능",
                     color=0x7289DA
                 )
 
-                for Category in os.listdir(Path):
-                    if os.path.isdir(f"{Path}/{Category}"):
-                        commandsList = []
-                        for command in os.listdir(f"{Path}/{Category}"):
-                            commandsList.append(f"`{command}`")
-                        Embed.add_field(name=Category, value=", ".join(commandsList))
-                    else:
-                        NoCat.append(f"`{Category}`")
+                # for Category in os.listdir(Path):
+                #     if os.path.isdir(f"{Path}/{Category}"):
+                #         commandsList = []
+                #         for command in os.listdir(f"{Path}/{Category}"):
+                #             commandsList.append(f"`{command}`")
+                #         Embed.add_field(name=Category, value=", ".join(commandsList))
+                #     else:
+                #         NoCat.append(f"`{Category}`")
+                
+                def commandReturner():
+                    comList = []
+                    for command in os.listdir(Path):
+                        pass
+                    return 
+                
+                def categoryReturner():
+                    catSet = set()
+                    for cat in os.listdir(Path):
+                        catSet.add(cat.split(";")[0])
+                    return catSet
+                    # Embed.add_field(name=Filename.split(";")[0], value=", ".join(commandsList))
 
-                if bool(NoCat) == True:
-                    Embed.add_field(name="기타", value=", ".join(NoCat))
-
+                # if bool(NoCat) == True:
+                #     Embed.add_field(name="기타", value=", ".join(NoCat))
+                # for cat in os.listdir(Path): # cat: category;command
+                #     category = cat.split(";")[0]
+                #     commands = ["asdf"]
+                #     if cat.split(";")[1] == "info":
+                #         pass
+                #     else:
+                #         commands.append(cat.split(";")[1])
+                    
+                # Embed.add_field()
                 Embed.set_footer(text="기타 도움말: ?help info")
                 await ctx.send(embed=Embed)
             else:
@@ -65,7 +92,68 @@ class Docs(commands.Cog):
                 color=0xFF0000
             )
             await ctx.send(embed=Embed)
-    
+
+    @commands.command(name="help", aliases=["도움말", "Help", "도움"])
+    async def _help(self, ctx:commands.Context, category=None, command=None):
+        with open(f"{Path}/Help/Help/Help.json", "r") as File:
+            Docs = json.load(fp=File)
+
+            if category is None:
+                Embed = discord.Embed(
+                    title="카테고리 목록",
+                    description=", ".join(list(Docs.keys()))
+                )
+                await ctx.send(embed=Embed)
+                # 카테고리 목록
+            elif command is None:
+                try:
+                    category = f"`{category}`"
+                    Embed = discord.Embed(
+                        title=f"명령어 목록: {category} ",
+                        description=", ".join(list(Docs[category].keys()))
+                    )
+                    await ctx.send(embed=Embed)
+                except KeyError:
+                    Embed = discord.Embed(
+                        title="오류",
+                        description=f"`{category}` 카테고리를 찾지 못했습니다",
+                        color=0xFF0000
+                    )
+                    await ctx.send(embed=Embed)
+            else:
+                try:
+                    category = f"`{category}`"
+                    command  = f"`{command}`"
+                    Help = Docs[category][command]
+                    Embed = discord.Embed(
+                        title=f"명령어: {category}/{command}",
+                        description=Help["description"],
+                        color=0xFFCC00 # int(Docs[category][command]["color"], 16)
+                    )
+                    if Help["type"] == "info":
+                        Embed.add_field(name="명령어 목록", value=", ".join(Help["commandList"]), inline=False)
+                    if Help["type"] == "command":
+                        if bool(Help["arguments"]):
+                            Embed.add_field(name="인수 목록", value="\n".join(Help["arguments"]), inline=False)
+                        else:
+                            Embed.add_field(name="인수 목록", value="**없음**", inline=False)
+                        
+                        Embed.add_field(name="사용", value=Help["use"], inline=False)
+
+                        if bool(Help["aliases"]):
+                            Embed.add_field(name="별칭", value=", ".join(Help["aliases"]), inline=False)
+                        else:
+                            Embed.add_field(name="별칭", value="**없음**", inline=False)
+
+                    await ctx.send(embed=Embed)
+                except KeyError:
+                    Embed = discord.Embed(
+                        title="오류",
+                        description=f"`{command}` 명령어를 찾지 못했습니다",
+                        color=0xFF0000
+                    )
+                    await ctx.send(embed=Embed)
+
     @commands.command(name="memo", aliases=["메모"])
     async def memo(self, ctx: commands.Context, TargetMemo=None):
         if TargetMemo is None:

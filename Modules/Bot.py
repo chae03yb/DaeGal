@@ -20,6 +20,10 @@ class Bot(commands.Cog):
     @commands.command(name="ping", aliases=["핑"])
     async def ping(self, ctx: commands.Context):
         await ctx.send(f"pong! `{int(self.client.latency * 1000)}ms`")
+
+    @commands.command(name="statusCheck")
+    async def statusCheck(self, ctx:commands.Context):
+        await ctx.send("Main bot is online!")
     
     @commands.command(name="invite", aliases=["초대"])
     async def Invite(self, ctx: commands.Context):
@@ -37,8 +41,32 @@ class Bot(commands.Cog):
             print(f"Terminated by {CC.EFCT.REVERSE_PHASE} {ctx.author.name} {CC.EFCT.CLEAR}")
             os._exit(0)
         except Exception as E:
-            await ctx.send(f"E: {E}")
-
+            errEmbed = discord.Embed(
+                title="오류",
+                description=f"{E}",
+                color=0xFF0000
+                )
+            await ctx.send(embed=errEmbed)
+    """
+    @commands.command(name="reboot")
+    @commands.check(Main.isOwner)
+    async def reboot(self, ctx: commands.Context):
+        embed = discord.Embed(
+            title="종료중...",
+            description="조금만 기다려주세요",
+            color=0x1de81a
+            )
+        await ctx.send(embed=embed)
+        await discord.Client.clear(self=self)
+        
+        except Exception as E:
+            errEmbed = discord.Embed(
+                title="오류",
+                decription=str(E),
+                color=0xFF0000
+            )
+            await ctx.send(embed=errEmbed)
+    """
     # @commands.command(name="setPrefix", aliases=["접두사_설정"])
     async def setPrefix(self, ctx: commands.Context, prefix='?'):
         try:
@@ -46,19 +74,27 @@ class Bot(commands.Cog):
                 json.dump(obj={ "Prefix": prefix }.update(json.load(fp=File)), fp=File, indent=4)
                 await ctx.send("설정 성공.")
         except Exception as E:
-            await ctx.send(
-                f"설정 실패.\n"\
-                f"사유: {E}"
+            errEmbed = discord.Embed(
+                title="설정 실패",
+                description=f"{E}",
+                color=0xFF0000
             )
+            await ctx.send(embed=errEmbed)
 
     @commands.Cog.listener(name="on_ready")
     async def on_ready(self):
         await self.client.change_presence(activity=discord.Game("help: ?help"))
 
     @commands.command(name="changePresence")
+    @commands.check(Main.isOwner)
     async def changePresence(self, ctx:commands.Context, activity=None):
         await self.client.change_presence(activity=discord.Game(activity))
-        await ctx.send("상태 메시지를 변경했습니다")
+        embed = discord.Embed(
+            title="성공",
+            description="상태 메시지를 변경했습니다",
+            color=0x30e330
+        )
+        await ctx.send(embed=embed)
     
     # @commands.command(name="addStatus", aliases=["+Status", "+status", "상태추가", "+상태"])
     async def addStatus(self, ctx: commands.Context, status=None):
@@ -66,7 +102,11 @@ class Bot(commands.Cog):
             return await ctx.send("상태 메시지를 같이 입력해주십시오.")
         with open("/home/pi/Desktop/Bot/Data/Bot/Presence", "a") as File:
             File.write(status+"\n")
-            await ctx.send("완료")
+            embed = discord.Embed(
+                title="완료",
+                color=0x30e330
+            )
+            await ctx.send(embed=embed)
 
     @commands.command(name="eval")
     @commands.check(Main.isOwner)
@@ -90,5 +130,6 @@ class Bot(commands.Cog):
                 jsonData["loginCount"] += 1
                 json.dump(fp=InitFile, obj=jsonData, indent=4)
 """
+
 def setup(client):
     client.add_cog(Bot(client))

@@ -1,0 +1,8 @@
+채널의 메세지를 입력받은 수 만큼 삭제합니다
+
+인수
+`reach`: 1 이상의 정수
+`keyword`: 키워드
+
+사용
+`?clear <reach> [keyword]`
