@@ -17,7 +17,6 @@ class Others(commands.Cog):
             await ctx.channel.send(" ".join(UserList))
 
     @commands.command(name = "vote", aliases = ["투표"])
-    @commands.guild_only()
     async def makeVote(self, ctx: commands.Context, itemAmount: int, *, description = None):
         itemList = ["1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣", "🔟"]
         waitTime = 5.0
@@ -54,11 +53,6 @@ class Others(commands.Cog):
 
             for i in range(0, itemAmount):
                 await msg.add_reaction(itemList[i])
-
-    @commands.command(name="byteConverter")
-    async def byteConverter(self, ctx:commands.Context, byte:None, to="GB"):
-        if byte is None:
-            return await ctx.send("변환할 크기를 입력해야 합니다.")
 
 def setup(client):
     client.add_cog(Others(client))

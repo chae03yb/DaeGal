@@ -1,7 +1,6 @@
 from discord.ext import commands
 import Main
 import discord
-import re
 import DaeGal_Utils
 
 DataPath = "/home/pi/Desktop/Bot/Data"
@@ -23,6 +22,7 @@ class CustomCommands(commands.Cog):
             CMDargs = CMDargs.lstrip()
             # CMDargs: arg1=ㅁㄴㅇㄹ, arg2=135
             CMDargs = CMDargs.split(', ')
+            # CMDargs: [arg1=ㅁㄴㅇㄹ, arg2=135]
             await ctx.invoke(command=editedCMD.split(' ')[0], )
 
     # invoke로 명령어 호출

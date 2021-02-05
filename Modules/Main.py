@@ -1,8 +1,12 @@
 #!/usr/bin/python3
+#-*- coding: utf-8 -*-
+
 import discord
 from discord.ext import commands
+import Log
 
 import ConsoleColors as CC
+import json
 
 client = commands.Bot(
     command_prefix="?",
@@ -28,24 +32,21 @@ Modules = [
 adminID = (
     434549321216688128, # 샤프#8720
     480977114980417538, # 잠ㅅ갊#3497 
-    373473326179549205, # 샤프 마이크#4156
 )
 
 LogPath = "/home/pi/Desktop/Bot/Data/Log"
+Path    = "/home/pi/Desktop/Bot/Data"
 
 def isOwner(ctx):
     return ctx.author.id in adminID
 
 class Main(commands.Cog):
-    def __init__(self, client: commands.Bot):
+    def __init__(self, client):
         self.client = client
-        self.DataPath = "/home/pi/Desktop/Bot/Data"
 
     @commands.Cog.listener()
     async def on_ready(self):
         print(f"{CC.BG_RGB(0, 200, 0)} Logged in as {self.client.user} {CC.EFCT.CLEAR}")
-#        with open(f"{LogPath}/", "w") as LogFile:
-#            LogFile.write()
         print("--------------------------------------------------")
 
     @commands.command(name="load", aliases=["+ext"], hidden=True)
@@ -58,7 +59,7 @@ class Main(commands.Cog):
                 client.load_extension(ext)
                 Modules.append(ext)
                 await ctx.send(f"{ext}를 로드했습니다.")
-                print(f"{CC.TXT.BR_GREEN} Loaded Module: {ext} {CC.EFCT.CLEAR}")
+                print(f"{CC.TEXT.BrightGreen} Loaded Module: {ext} {CC.EFCT.CLEAR}")
             except Exception as E:
                 await ctx.send(f"E: {E}")
 
@@ -69,7 +70,7 @@ class Main(commands.Cog):
             client.unload_extension(ext)
             Modules.remove(ext)
             await ctx.send(f"{ext}를 언로드했습니다.")
-            print(f"{CC.TXT.BR_RED} Unloaded Module: {ext} {CC.EFCT.CLEAR}")
+            print(f"{CC.TEXT.BrightRed} Unloaded Module: {ext} {CC.EFCT.CLEAR}")
         except Exception as E:
             await ctx.send(f"E: {E}")
     
@@ -79,7 +80,7 @@ class Main(commands.Cog):
         try:
             for ext in Modules:
                 client.reload_extension(ext)
-                print(f"{CC.TXT.BR_GREEN} Reloaded Module: {ext} {CC.EFCT.CLEAR}")
+                print(f"{CC.TEXT.BrightGreen} Reloaded Module: {ext} {CC.EFCT.CLEAR}")
             print("--------------------------------------------------")
             await ctx.send("모두 리로드했습니다.")
         except Exception as E:
@@ -90,36 +91,41 @@ class Main(commands.Cog):
     async def currentMainVer(self, ctx: commands.Context):
         await ctx.send("VER: STABLE")
 
-"""
-...
-for Module in Modules:
-    try:
-        with open(F"{LogPath}/", "a") as LogFile:
-            LogFile.write(f"Loaded Module: {Module}")
-    except FileNotFoundError:
-        with open(F"{LogPath}/", "w") as LogFile:
-            LogFile.write(f"Loaded Module: {Module}")
+    @commands.command(name="disableCategory", aliases=["카테고리_비활성화"])
+    # @commands.has_permissions(administrator=True)
+    async def disableCategory(self, ctx: commands.Context, *category):
+        if category is None:
+            Embed = discord.Embed(
+                title="오류",
+                description="비활성화할 카테고리가 필요합니다",
+                color=0xFF0000
+            )
+            return await ctx.send(embed=Embed)
 
-...
-except KeyboardInterrupt:
-    try:
-    with open(f"{LogPath}/", "a") as LogFile:
-        LogFile.write()
-except FileNotFoundError:
-    with open(F"{LogPath}/", "w") as LogFile:
-        LogFile.write()
-"""
+        with open(f"{Path}/Guild/{ctx.guild.id}/disabledCategory.json", "r") as File:
+            # {
+            #     "disabledCategory": [
+            #         "cat1",
+            #         "cat2"
+            #     ]
+            # }
+            Config = json.load(fp=File)
+            # await ctx.send("asdf")
+            with open(f"{Path}/Guild/{ctx.guild.id}/disabledCategory.json", "w") as File:
+                json.dump(Config.update({"disabledCategory": list(category)}))
+                await ctx.send("완료")
 
 if __name__ == "__main__":
     try:
         client.remove_command("help")
         client.remove_cog("help")
         client.add_cog(Main(client))
+
         for Module in Modules:
             client.load_extension(Module)
             print(f"Loaded Module: {Module}")
         print("--------------------------------------------------")
-        with open("/home/pi/Desktop/Bot/Token/Token", "r") as Token:
+        with open("/DaeGal/Token/Token", "r") as Token:
             client.run(Token.read())
     except KeyboardInterrupt:
         pass

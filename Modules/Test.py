@@ -1,5 +1,6 @@
 import discord
 from discord.ext import commands
+import DaeGal_Utils
 
 class Test(commands.Cog):
     def __init__(self, client):

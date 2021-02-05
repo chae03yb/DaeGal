@@ -13,7 +13,6 @@ class MailService(commands.Cog):
     @commands.dm_only()
     @commands.check(Main.isOwner)
     async def mail(self, ctx: commands.Context):
-        return await ctx.send("아직 개발중인 기능입니다.")
         Path = "/home/pi/Desktop/Bot/Data/Mail"
         Embed = discord.Embed(
             color=0x000000,

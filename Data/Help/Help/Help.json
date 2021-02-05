@@ -100,6 +100,18 @@
             "aliases": [
                 "`?랜덤`"
             ]
+        },
+        "`choice`": {
+            "type": "command",
+            "description": "무작위로 여러 항목중 하나를 뽑습니다",
+            "arguments": [
+                "Value1: 선택할 항목, 최소 1개",
+                "Value2: 선택 사항"
+            ],
+            "use": "`?choice <Value1> [Value2 ...]`",
+            "aliases": [
+                "`?선택`"
+            ]
         }
     },
     "`guild`": {
@@ -112,7 +124,8 @@
                 "`?setBotRole`", 
                 "`?setWelcomeMessage`", 
                 "`?setWelcomeChannel`", 
-                "`?clear`"
+                "`?clear`",
+                "`?출석`"
             ]
         },
         "`clear`": {
@@ -136,7 +149,7 @@
                 "`?봇_역할_설정`"
             ]
         },
-        "`setDefaultRole": {
+        "`setDefaultRole`": {
             "type": "command",
             "description": "서버에 입장하는 유저에게 자동으로 부여될 역할을 설정합니다\n또한 `?punish` 명령어의 제재가 끝난 후 자동으로 부여되는 역할입니다",
             "arguments": [
@@ -147,7 +160,7 @@
                 "`?기본_역할_설정`"
             ]
         },
-        "`setPunishRole": {
+        "`setPunishRole`": {
             "type": "command",
             "description": "정지를 받는 역할을 설정합니다\n이 역할은 `?punish` 명령어에서 사용합니다",
             "arguments": [
@@ -175,6 +188,15 @@
             ],
             "use": "`?setWelcomeMsg <message>`",
             "aliases": []
+        },
+        "`출석`": {
+            "type": "command",
+            "description": "출석체크를 합니다.\n하루에 한 번만 체크할 수 있습니다.",
+            "arguments": [
+                "`comment`: 출석체크를 한 뒤의 코멘트입니다"
+            ],
+            "use": "`?<출석|ㅊㅊ> [comment]`",
+            "aliases": ["`?ㅊㅊ`"]
         }
     },
     "`guilduser`": {
@@ -185,7 +207,7 @@
                 "`?kick`", 
                 "`?ban`", 
                 "`?punish`", 
-                "`?cancelPunish`",
+                "`?release`",
                 "`?addRole`", 
                 "`?rmRole`", 
                 "`?warning`"
@@ -226,13 +248,13 @@
                 "`정지`"
             ]
         },
-        "`cancelpunish`": {
+        "`release`": {
             "type": "command",
             "description": "정지된 대상을 정지 해제합니다",
             "arguments": [
                 "`target`: 정지된 유저 언급/이름"
             ],
-            "use": "`cancelpunish <target>`",
+            "use": "`release <target>`",
             "aliases": [
                 "`정지취소`"
             ]
@@ -267,10 +289,18 @@
             "type": "command",
             "description": "경고 명령어입니다",
             "arguments": [
-                "`warning`: 대상에게 경고를 줍니다\nㅤ`target`: 경고를 줄 대상\nㅤ`amount`: 경고 횟수",
-                "`view`: 대상의 경고 횟수를 확인합니다\nㅤ`target`: 확인할 대상\nㅤ기본값은 자신입니다"
+                "`warning`: 대상에게 경고를 줍니다\nㅤ`target`: 경고를 줄 대상\nㅤ`amount`: 경고 횟수"
             ],
-            "use": "`?warnings <warning|view> <target> [amount]`",
+            "use": "`?warnings <warning> <target> [amount]`",
+            "aliases": []
+        },
+        "`warninglist`": {
+            "type": "command",
+            "description": "경고 횟수를 확인합니다",
+            "arguments": [
+                "`target`: 경고 횟수를 확인할 대상입니다\n 기본값은 자신입니다"
+            ],
+            "use": "`?warninglist [target]",
             "aliases": []
         }
     },
@@ -348,7 +378,7 @@
         },
         "`vote`": {
             "type": "command",
-            "description": "투표를 시작합니다\n\n서버 전용 명령어",
+            "description": "투표를 시작합니다",
             "arguments": [
                 "`Items`: 투표 항목 (2~10개)",
                 "`Description`: 투표 설명"

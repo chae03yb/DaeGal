@@ -1,9 +1,19 @@
+import os
+import sys
+
+from discord.embeds import Embed
+
 import discord
 from discord.ext import commands
 from discord import utils
 import json
 import os.path
 import asyncio
+import SimpleJSON
+import time
+import datetime
+import DaeGal_Utils
+
 import Main
 
 Path = "/home/pi/Desktop/Bot/Data/Guild/"
@@ -35,6 +45,15 @@ class Guild(commands.Cog):
                 await member.guild.get_channel(json.load(fp=File)["ChannelID"]).send(embed=Embed)
         except FileNotFoundError:
             pass
+        
+    # @commands.Cog.listener()
+    async def on_message(self, ctx):
+        return 
+        if (ctx.author.bot) or (not ctx.channel.id == 663785408802586645): return 
+        if (ctx.content.startswith("섹") or ctx.content.startswith("섻")) and \
+           (ctx.content.endswith("스")):
+            await PunishMain.warning(ctx=ctx, target=ctx.author, amount=1)
+            await ctx.send("자동 경고 부여됨")
 
     @commands.Cog.listener(name="on_guild_join")
     async def onGuildJoin(self, guild: discord.Guild):
@@ -100,57 +119,6 @@ class Guild(commands.Cog):
                 except Exception as E:
                     await ctx.send(E)
 
-    # @commands.command(name="setWelcomeMsg")
-    @commands.has_permissions(administrator=True)
-    @commands.guild_only()
-    async def setWelcomeMsg(self, ctx: commands.Context, option=None):
-        if option == "del":
-            os.remove(f"{Path}/{ctx.guild.id}/Welcome/Msg")
-            await ctx.send("삭제 완료")
-        try:
-            async def setMessage(msg):
-                return msg.message.content and msg.message.author == ctx.message.author
-
-            Embed = discord.Embed(
-                title="환영 메세지의 내용을 입력해주세요"
-            )
-            await ctx.send(embed=Embed)
-            Message = await self.client.wait_for(event="message", timeout=500.0, check=setMessage)
-        except asyncio.TimeoutError:
-            await ctx.send("시간 초과")
-        else:
-            if Message == "None":
-                return await ctx.send("설정을 종료합니다")
-            try:
-                with open(f"{Path}/{ctx.guild.id}/Welcome/Message", "w") as File:
-                    File.write(Message)
-                    await ctx.send("메세지 설정 완료")
-            except Exception as E:
-                Embed = discord.Embed(
-                    title="오류",
-                    description=f"```{E}```",
-                    color=0xFF0000
-                )
-                await ctx.send(embed=Embed)
-
-        """if message is None:
-            await ctx.send("환영 메세지의 내용을 입력해주세요")
-            return
-        if not os.path.exists(f"{Path}/{ctx.guild.id}"):
-            os.mkdir(f"{Path}/{ctx.guild.id}")
-        with open(f"{Path}/{ctx.guild.id}/WelcomeMsg.txt", "w") as File:
-            File.write(message)
-            await ctx.send("설정 완료")
-        if CID is None:
-            await ctx.send("채널 ID가 필요합니다")
-            return
-        if not os.path.exists(f"{Path}/{ctx.guild.id}/Channel"):
-            os.makedirs(f"{Path}/{ctx.guild.id}")
-        with open(f"{Path}/{ctx.guild.id}/GuildConfig.json", "w") as File:
-            Data = { "WelcomeChannel": CID }
-            json.dump(obj=Data, fp=File, indent=4)
-            await ctx.send("설정 완료")"""
-
     @commands.command(name="clear")
     @commands.has_permissions(administrator=True)
     @commands.guild_only()
@@ -175,5 +143,68 @@ class Guild(commands.Cog):
             )
             await ctx.send(embed=errEmbed)
     
+    @commands.command(name="출석", aliases = ["ㅊㅊ"])
+    async def attendance(self, ctx: commands.Context, *, comment=None):
+        msg = ctx.message
+        if comment is None:
+            comment = " "
+        else:
+            comment = f"\n\n> {comment}"
+        
+        path = f"/DaeGal/Data/Guild/{ctx.guild.id}/Members/attendanceList.json"
+        try:
+            if time.strftime(r"%Y-%m-%d", time.localtime()) == SimpleJSON.Read(path)[f"{msg.author.id}"]["lastAttendance"]:
+                Embed = discord.Embed(
+                    title="이미 출석했습니다",
+                    description="하루에 한 번만 출석할 수 있습니다",
+                    color=0xFF0000
+                )
+                await ctx.send(embed=Embed)
+            else:
+                Data = SimpleJSON.Read(path)
+                Data[f"{msg.author.id}"]["lastAttendance"] = time.strftime(r"%Y-%m-%d", time.localtime())
+                Data[f"{msg.author.id}"]["count"] += 1
+                SimpleJSON.BackupWrite(path, Data)
+                count = str(Data[f"{msg.author.id}"]["count"])
+                Embed = discord.Embed(
+                    title="✅",
+                    description=f"현재 {ctx.author}님의 출석 횟수는 {count}회 입니다 {comment}",
+                    color=DaeGal_Utils.EmbedColors.Green
+                )
+                await ctx.send(embed=Embed)
+        except KeyError:
+            Data = SimpleJSON.Read(path)
+            DictData = {
+                f"{ctx.author.id}": {
+                    "count": 1,
+                    "lastAttendance": time.strftime(r"%Y-%m-%d", time.localtime())
+                }
+            }
+            Data.update(DictData)
+            SimpleJSON.BackupWrite(path, Data)
+            count = str(Data[f"{msg.author.id}"]["count"])
+            Embed = discord.Embed(
+                title="✅",
+                description=f"현재 {ctx.author}님의 출석 횟수는 {count}회 입니다 {comment}",
+                color=DaeGal_Utils.EmbedColors.Green
+            )
+            await ctx.send(embed=Embed)
+        except FileNotFoundError:
+            with open(f"/home/pi/Desktop/Bot/Data/Guild/{ctx.guild.id}/Members/attendanceList.json", 'x') as F:
+                obj = {
+                    f"{ctx.author.id}": {
+                        "count": 1,
+                        "lastAttendance": time.strftime(r"%Y-%m-%d", time.localtime())
+                    }
+                }
+                SimpleJSON.BackupWrite(path, obj)
+                count = str(obj[f"{msg.author.id}"]["count"])
+                Embed = discord.Embed(
+                    title="✅",
+                    description=f"현재 {ctx.author}님의 출석 횟수는 {count}회 입니다 {comment}",
+                    color=DaeGal_Utils.EmbedColors.Green
+                )
+                await ctx.send(embed=Embed)
+
 def setup(client):
     client.add_cog(Guild(client))

@@ -2,7 +2,7 @@
 
 import discord
 from discord.ext import commands
-import ConsoleColors as CC
+import Log
 
 client = commands.Bot(
     command_prefix="?",
@@ -28,11 +28,9 @@ Modules = [
 adminID = (
     434549321216688128, # 샤프#8720
     480977114980417538, # 잠ㅅ갊#3497
-    373473326179549205, # 샤프 마이크#4156
 )
 
 DataPath = "/home/pi/Desktop/Bot/Data"
-LogPath = f"{DataPath}/Log"
 
 def isOwner(ctx: commands.Context):
     return ctx.author.id in adminID
@@ -45,9 +43,8 @@ class Main(commands.Cog):
     @commands.Cog.listener()
     async def on_ready(self):
         Log.increaseLoginCount()
-        Log.writeLog(f"Logged in as {self.client.user}")
+        Log.Write("Login", f"Logged in as {self.client.user}")
 #        print(f"{CC.BG_RGB(0, 200, 0)} Logged in as {self.client.user} {CC.EFCT.CLEAR}")
-        print("--------------------------------------------------")
 
     @commands.command(name="load", hidden=True)
     @commands.check(isOwner)
@@ -60,7 +57,7 @@ class Main(commands.Cog):
                 Modules.append(ext)
                 Modules.sort()
                 await ctx.send(f"{ext}를 로드했습니다.")
-                Log.writeLog(f"Loaded Module: {ext}")
+                Log.Write("Success", f"Loaded Module: {ext}")
             except Exception as E:
                 await ctx.send(f"E: {E}")
 
@@ -72,7 +69,7 @@ class Main(commands.Cog):
             Modules.remove(ext)
             Modules.sort()
             await ctx.send(f"{ext}를 언로드했습니다.")
-            Log.writeLog(f"Unloaded Module: {ext}")
+            Log.Write("Success", f"Unloaded Module: {ext}")
         except Exception as E:
             await ctx.send(f"E: {E}")
     
@@ -82,18 +79,10 @@ class Main(commands.Cog):
         try:
             for ext in Modules:
                 client.reload_extension(ext)
-                Modules.sort()
-                Log.writeLog(f"Reloaded Module: {ext}")
+                Log.Write("Success", f"Reloaded Module: {ext}")
             await ctx.send("모두 리로드했습니다.")
         except Exception as E:
             await ctx.send(E)
-
-    @commands.command(name="moduleslist")
-    @commands.check(isOwner)
-    async def modulesList(self, ctx: commands.Context):
-        Modules.sort()
-        for a in Modules: 
-            await ctx.send(a)
 
     @commands.command(name="currentMainVer")
     @commands.check(isOwner)
@@ -107,11 +96,11 @@ if __name__ == "__main__":
         client.add_cog(Main(client))
         for Module in Modules:
             client.load_extension(Module)
-            Log.writeLog(f"Loaded Module: {Module}")
+            Log.Write("Success", f"Loaded Module: {Module}")
         print("--------------------------------------------------")
         with open("/home/pi/Desktop/Bot/Token/Token", "r") as Token:
             client.run(Token.read())
     except KeyboardInterrupt:
-        Log.writeLog("Terminated by KeyboardInterrupt")
+        Log.Write("Shutdown", "Terminated by KeyboardInterrupt")
     except Exception as E:
-        Log.writeLog(f"Error: {E}")
+        Log.Write("Error", f"Error: {E}")

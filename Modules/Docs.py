@@ -6,92 +6,14 @@ import asyncio
 import json
 from os.path import join
 from re import split
+import SimpleJSON
+import DaeGal_Utils
 
-Path = f"/home/pi/Desktop/Bot/Data"
+Path = f"/DaeGal/Data"
 
 class Docs(commands.Cog):
     def __init__(self, client):
         self.client = client
-    
-    # @commands.command(name="Help", aliases=["도움말", "help", "도움"])
-    async def Help(self, ctx: commands.Context, Target=None):
-        return await ctx.send("재작업중....")
-        try:
-            if Target.startswith("." or "/"):
-                return
-        except AttributeError:
-            pass
-        Path = "/home/pi/Desktop/Bot/Data/Help/Help"
-        try:
-            if Target is None:
-                NoCat = []
-                Embed = discord.Embed(
-                    title="명령어 목록",
-                    # description="`(카테고리)/(명령어)` 형식으로 명령어 확인 가능",
-                    color=0x7289DA
-                )
-
-                # for Category in os.listdir(Path):
-                #     if os.path.isdir(f"{Path}/{Category}"):
-                #         commandsList = []
-                #         for command in os.listdir(f"{Path}/{Category}"):
-                #             commandsList.append(f"`{command}`")
-                #         Embed.add_field(name=Category, value=", ".join(commandsList))
-                #     else:
-                #         NoCat.append(f"`{Category}`")
-                
-                def commandReturner():
-                    comList = []
-                    for command in os.listdir(Path):
-                        pass
-                    return 
-                
-                def categoryReturner():
-                    catSet = set()
-                    for cat in os.listdir(Path):
-                        catSet.add(cat.split(";")[0])
-                    return catSet
-                    # Embed.add_field(name=Filename.split(";")[0], value=", ".join(commandsList))
-
-                # if bool(NoCat) == True:
-                #     Embed.add_field(name="기타", value=", ".join(NoCat))
-                # for cat in os.listdir(Path): # cat: category;command
-                #     category = cat.split(";")[0]
-                #     commands = ["asdf"]
-                #     if cat.split(";")[1] == "info":
-                #         pass
-                #     else:
-                #         commands.append(cat.split(";")[1])
-                    
-                # Embed.add_field()
-                Embed.set_footer(text="기타 도움말: ?help info")
-                await ctx.send(embed=Embed)
-            else:
-                if os.path.isdir(f"{Path}/{Target}"):
-                    Embed = discord.Embed(
-                        title="명령어 목록",
-                        description=f"카테고리: {Target}",
-                        color=0x7289DA
-                    )
-                    Embed.add_field(name=Target, value="`"+"`, `".join(os.listdir(f"{Path}/{Target}"))+"`")
-                    Embed.set_footer(text="기타 도움말: ?help info")
-                    await ctx.send(embed=Embed)
-                else:
-                    with open(f"{Path}/{Target}", "r") as File:
-                        Embed = discord.Embed(
-                            title=f"{Target} 도움말",
-                            description=File.read(),
-                            color=0x7289DA
-                        )
-                        Embed.set_footer(text="기타 도움말: ?help info")
-                        await ctx.send(embed=Embed)
-        except FileNotFoundError:
-            Embed = discord.Embed(
-                title="오류",
-                description="도움말을 찾지 못했습니다.",
-                color=0xFF0000
-            )
-            await ctx.send(embed=Embed)
 
     @commands.command(name="help", aliases=["도움말", "Help", "도움"])
     async def _help(self, ctx:commands.Context, category=None, command=None):
@@ -249,7 +171,7 @@ class Docs(commands.Cog):
                         searchResult.append(f"`{result}`")
 
                 Embed = None
-                if not searchResult:  
+                if not searchResult:
                     Embed = discord.Embed(
                         title=f"검색: {TargetMemo}",
                         description="검색 결과가 없습니다."
@@ -258,6 +180,38 @@ class Docs(commands.Cog):
                     Embed = discord.Embed(title=f"검색 결과: {TargetMemo}")
                     Embed.add_field(name="결과", value=f", ".join(searchResult))
                 await ctx.send(embed=Embed)
+
+    @commands.command(name="변경사항", aliases=["changelog"])
+    async def changelog(self, ctx: commands.Context, version="Lastest"):
+        BotConfig = "/DaeGal/Data/Config.json"
+        LogPath   = ""
+
+        if version == "Lastest":
+            with open(BotConfig, "r") as File:
+                versionName = json.load(fp=File)["version"]
+                LogPath += f"/DaeGal/Data/Help/ChangeLog/{versionName}.md"
+        else:
+            LogPath += f"/DaeGal/Data/Help/ChangeLog/{version}.md"
+
+        try:
+            with open(LogPath, 'r') as ChangeLog:
+                Content = ChangeLog.read()
+                embed = discord.Embed(
+                    title=f"변경 사항 버전: {version} ",
+                    description=f"```md\n" \
+                                f"{Content}\n"\
+                                f"```",
+                    color=0xFFFF33
+                )
+                await ctx.send(embed=embed)
+
+        except FileNotFoundError:
+            embed = discord.Embed(
+                title="오류",
+                description="해당 버전을 찾을 수 없습니다",
+                color=0xFF0000
+            )
+            await ctx.send(embed=embed)
 
 def setup(client):
     client.add_cog(Docs(client))
