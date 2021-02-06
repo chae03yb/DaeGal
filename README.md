@@ -6,7 +6,7 @@
 
 ### 초대 링크
 * [봇 초대하기](https://discord.com/api/oauth2/authorize?client_id=736998050383396996&permissions=8&redirect_uri=https%3A%2F%2Fdiscord.com%2Fapi%2Foauth2%2Fauthorize%3Fclient_id%3D736998)
-* [대갈 디스코드 서버](https://discord.gg/r7P2zKgCgU)
+* [디스코드 서버](https://discord.gg/r7P2zKgCgU)
 
 ### 도움
 * https://github.com/chae03yb/DaeGal/issues
