@@ -76,15 +76,45 @@ class Main(commands.Cog):
     
     @commands.command(name="reload", hidden=True)
     @commands.check(isOwner)
-    async def reload(self, ctx: commands.Context):
-        try:
-            for ext in Modules:
-                client.reload_extension(ext)
+    async def reload(self, ctx: commands.Context, category=None):
+        if category is None:
+            try:
+                for ext in Modules:
+                    client.reload_extension(ext)
+                    print(f"{CC.TEXT.BrightGreen} Reloaded Module: {ext} {CC.EFCT.CLEAR}")
+                print("--------------------------------------------------")
+                Embed = discord.Embed(
+                    title="성공",
+                    description="모든 모듈을 리로드했습니다",
+                    color=0x00FF00
+                )
+                await ctx.send(embed=Embed)
+            except Exception as Error:
+                Embed = discord.Embed(
+                    title="실패",
+                    description=f"```사유: {Error}```",
+                    color=0xFF0000
+                )
+                await ctx.send(embed=Embed)
+        else:
+            try:
+                client.reload_extension(category)
+                ext = category
                 print(f"{CC.TEXT.BrightGreen} Reloaded Module: {ext} {CC.EFCT.CLEAR}")
-            print("--------------------------------------------------")
-            await ctx.send("모두 리로드했습니다.")
-        except Exception as E:
-            await ctx.send(E)
+                print("--------------------------------------------------")
+                Embed = discord.Embed(
+                    title="성공",
+                    description=f"{ext} 모듈을 리로드했습니다",
+                    color=0x00FF00
+                )
+                await ctx.send(embed=Embed)
+            except Exception as Error:
+                Embed = discord.Embed(
+                    title="실패",
+                    description=f"```사유: {Error}```",
+                    color=0xFF0000
+                )
+                await ctx.send(embed=Embed)
 
     @commands.command(name="currentMainVer", aliases=["curMainVer"])
     @commands.check(isOwner)

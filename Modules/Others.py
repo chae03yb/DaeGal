@@ -54,5 +54,17 @@ class Others(commands.Cog):
             for i in range(0, itemAmount):
                 await msg.add_reaction(itemList[i])
 
+    @commands.command(name="timer", aliases=["타이머"])
+    async def timer(self, ctx:commands.Context, time=None):
+        if time is None:
+            Embed = discord.Embed(
+                title="오류",
+                description="시간을 입력해주세요",
+                color=0xFF0000
+            )
+            await ctx.send(embed=Embed)
+        
+        asyncio.sleep()
+
 def setup(client):
     client.add_cog(Others(client))

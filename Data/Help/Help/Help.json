@@ -62,11 +62,22 @@
                 "`Category`: 카테고리 이름",
                 "`Command`: 명령어 이름"
             ],
-            "use": "사용\n`?help [Category] [Command]`\n\n`?help`: 카테고리 목록을 보여줍니다\n`?help [Category]`: 카테고리 내의 명령어 목록을 보여줍니다\n`?help [Category] [Command]`: 명령어 도움말을 보여줍니다",
+            "use": "`?help [Category] [Command]`\n\n`?help`: 카테고리 목록을 보여줍니다\n`?help [Category]`: 카테고리 내의 명령어 목록을 보여줍니다\n`?help [Category] [Command]`: 명령어 도움말을 보여줍니다",
             "aliases": [
                 "`?Help`",
                 "`?도움`", 
                 "`?도움말`"
+            ]
+        },
+        "`changelog`": {
+            "type": "command",
+            "description": "변경사항을 확인합니다",
+            "arguments": [
+                "`Version`: 확인할 버전입니다"
+            ],
+            "use": "`?changelog [Version]`",
+            "aliases": [
+                "`?변경사항`"
             ]
         }
     },
@@ -124,6 +135,7 @@
                 "`?setBotRole`", 
                 "`?setWelcomeMessage`", 
                 "`?setWelcomeChannel`", 
+                "`setNoticeChannel`",
                 "`?clear`",
                 "`?출석`"
             ]
@@ -189,9 +201,20 @@
             "use": "`?setWelcomeMsg <message>`",
             "aliases": []
         },
+        "`setNoticeChannel`": {
+            "type": "command",
+            "description": "봇의 공지사항을 전달할 채널을 설정합니다",
+            "arguments": [
+                "`Channel`: 채널 언급/채널 ID"
+            ],
+            "use": "`?setNoticeChannel <Channel>`",
+            "aliases": [
+                "`?공지채널_설정`"
+            ]
+        },
         "`출석`": {
             "type": "command",
-            "description": "출석체크를 합니다.\n하루에 한 번만 체크할 수 있습니다.",
+            "description": "출석체크를 합니다.\n하루에 한 번만 체크할 수 있습니다",
             "arguments": [
                 "`comment`: 출석체크를 한 뒤의 코멘트입니다"
             ],
@@ -363,8 +386,10 @@
         "`reload`": {
             "type": "command",
             "description": "모든 모듈을 다시 로드합니다\n\n**개발자 전용**",
-            "arguments": [],
-            "use": "`?reload`",
+            "arguments": [
+                "`Category`: 다시 로드할 카테고리"
+            ],
+            "use": "`?reload [Category]`",
             "aliases": []
         }
     },

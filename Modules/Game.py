@@ -29,7 +29,7 @@ class Game(commands.Cog):
     @commands.command(name="dice", aliases=["주사위"])
     async def dice(self, ctx: commands.Context):
         await ctx.send(f"주사위: {random.randint(1, 6)}")
-    
+
     @commands.command(name="choice", aliases=["선택"])
     async def choice(self, ctx: commands.Context, *contents):
         if bool(contents) is False:

@@ -186,12 +186,13 @@ class Docs(commands.Cog):
         BotConfig = "/DaeGal/Data/Config.json"
         LogPath   = ""
 
-        if version == "Lastest":
-            with open(BotConfig, "r") as File:
-                versionName = json.load(fp=File)["version"]
+        
+        with open(BotConfig, "r") as File:
+            versionName = json.load(fp=File)["version"]
+            if version == "Lastest":
                 LogPath += f"/DaeGal/Data/Help/ChangeLog/{versionName}.md"
-        else:
-            LogPath += f"/DaeGal/Data/Help/ChangeLog/{version}.md"
+            else:
+                LogPath += f"/DaeGal/Data/Help/ChangeLog/{version}.md"
 
         try:
             with open(LogPath, 'r') as ChangeLog:
