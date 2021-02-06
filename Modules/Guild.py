@@ -9,7 +9,6 @@ from discord import utils
 import json
 import os.path
 import asyncio
-import SimpleJSON
 import time
 import Main
 
@@ -160,63 +159,66 @@ class Guild(commands.Cog):
     @commands.command(name="출석", aliases = ["ㅊㅊ"])
     @commands.guild_only()
     async def attendance(self, ctx: commands.Context, *, comment=None):
-        comment = " "
+        DataPath = f"/DaeGal/Data/Guild/{ctx.guild.id}/Members"
+        DataFile = f"{DataPath}/attendanceList.json"
 
-        path = f"/DaeGal/Data/Guild/{ctx.guild.id}/Members/attendanceList.json"
+        os.makedirs(DataPath, exist_ok=True)
         if comment is not None:
             comment += f"\n\n> {comment}"
+        if comment is None:
+            comment = ""
         
         try:
-            if time.strftime(r"%Y-%m-%d", time.localtime()) == SimpleJSON.Read(path)[f"{ctx.author.id}"]["lastAttendance"]:
-                Embed = discord.Embed(
-                    title="이미 출석했습니다",
-                    description="하루에 한 번만 출석할 수 있습니다",
-                    color=0xFF0000
-                )
-                await ctx.send(embed=Embed)
-            else:
-                Data = SimpleJSON.Read(path)
-                Data[f"{ctx.author.id}"]["lastAttendance"] = time.strftime(r"%Y-%m-%d", time.localtime())
-                Data[f"{ctx.author.id}"]["count"] += 1
-                SimpleJSON.BackupWrite(path, Data)
-                count = str(Data[f"{ctx.author.id}"]["count"])
-                Embed = discord.Embed(
-                    title="✅",
-                    description=f"현재 {ctx.author}님의 출석 횟수는 {count}회 입니다 {comment}",
-                    color=0x00FF00
-                )
-                await ctx.send(embed=Embed)
+            with open(DataFile, "r") as FileIO:
+                AttendantData = json.load(fp=FileIO)[f"{ctx.author.id}"]
+
+                if time.strftime(r"%Y-%m-%d", time.localtime()) == AttendantData["lastAttendance"]:
+                    Embed = discord.Embed(
+                        title="이미 출석했습니다",
+                        description="하루에 한 번만 출석할 수 있습니다",
+                        color=0xFF0000
+                    )
+                    await ctx.send(embed=Embed)
+                else:
+                    AttendantData["lastAttendance"] = time.strftime(r"%Y-%m-%d", time.localtime())
+                    AttendantData["count"] += 1
+
+                    Embed = discord.Embed(
+                        title="✅",
+                        description=f"현재 {ctx.author}님의 출석 횟수는 {AttendantData['count']}회 입니다 {comment}",
+                        color=0x00FF00
+                    )
+                    await ctx.send(embed=Embed)
+
         except KeyError:
-            Data = SimpleJSON.Read(path)
-            DictData = {
-                f"{ctx.author.id}": {
-                    "count": 1,
-                    "lastAttendance": time.strftime(r"%Y-%m-%d", time.localtime())
-                }
-            }
-            Data.update(DictData)
-            SimpleJSON.BackupWrite(path, Data)
-            count = str(Data[f"{ctx.author.id}"]["count"])
+            FileData = {}
+            with open(DataFile, "r") as FileIO:
+                FileData = json.load(fp=FileIO)
+                FileData.update({ f"{ctx.author.id}": { "count": 1, "lastAttendance": time.strftime(r"%Y-%m-%d", time.localtime()) }})
+
+            with open(DataFile, "w") as dFile:
+                json.dump(fp=dFile, obj=FileData, indent=4)
+            
             Embed = discord.Embed(
                 title="✅",
-                description=f"현재 {ctx.author}님의 출석 횟수는 {count}회 입니다 {comment}",
+                description=f"현재 {ctx.author}님의 출석 횟수는 1회 입니다 {comment}",
                 color=0x00FF00
             )
             await ctx.send(embed=Embed)
         except FileNotFoundError:
-            os.makedirs(f"/DaeGal/Data/Guild/{ctx.guild.id}/Members/")
-            with open(f"/DaeGal/Data/Guild/{ctx.guild.id}/Members/attendanceList.json", 'x') as F:
+            with open(DataFile, "w") as FileIO:
                 obj = {
                     f"{ctx.author.id}": {
                         "count": 1,
                         "lastAttendance": time.strftime(r"%Y-%m-%d", time.localtime())
                     }
                 }
-                SimpleJSON.BackupWrite(path, obj)
-                count = str(obj[f"{ctx.author.id}"]["count"])
+                
+                json.dump(fp=FileIO, obj=obj, indent=4)
+                
                 Embed = discord.Embed(
                     title="✅",
-                    description=f"현재 {ctx.author}님의 출석 횟수는 {count}회 입니다 {comment}",
+                    description=f"현재 {ctx.author}님의 출석 횟수는 1회 입니다 {comment}",
                     color=0x00FF00
                 )
                 await ctx.send(embed=Embed)
