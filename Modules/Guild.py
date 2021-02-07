@@ -12,7 +12,7 @@ import asyncio
 import time
 import Main
 
-Path = "/home/pi/Desktop/Bot/Data/Guild/"
+Path = "/DaeGal/Data/Guild/"
 
 class Guild(commands.Cog):
     def __init__(self, client):
@@ -99,7 +99,7 @@ class Guild(commands.Cog):
             except Exception as E:
                 await ctx.send(E)
     
-    @commands.command(name="setNoticeChannel", aliases=["공지채널_설정"])
+    # @commands.command(name="setNoticeChannel", aliases=["공지채널_설정"])
     async def setNoticeChannel(self, ctx:commands.Context, channel:discord.TextChannel=None):
         if channel is None:
             Embed = discord.Embed(
@@ -110,12 +110,10 @@ class Guild(commands.Cog):
             return await ctx.send(embed=Embed)
 
         try:
-            os.makedirs(f"{Path}/{ctx.guild.id}/", exist_ok=True)
-            with open(f"{Path}/{ctx.guild.id}/GuildConfig.json", "r") as rFile:
+            with open(f"/DaeGal/Data/Bot/NoticeChannel.json", "r") as rFile:
                 Data = json.load(fp=rFile)
-                with open(f"{Path}/{ctx.guild.id}/GuildConfig.json", "w") as wFile:
-                    wData = { "Channel": { "NoticeChannel": channel.id }}
-                    Data.update(wData)
+                with open(f"/DaeGal/Data/Bot/NoticeChannel.json", "w") as wFile:
+                    Data.update({f"{ctx.guild.id}": channel.id})
                     json.dump(fp=wFile, obj=Data, indent=4)
                     Embed = discord.Embed(
                         title="성공",

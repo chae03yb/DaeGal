@@ -1,9 +1,11 @@
-Data/Game
-Data/Guild
-Data/Mail
-Data/User
-Data/Log
+Data/Game/
+Data/Guild/
+Data/Mail/
+Data/User/
+Data/Log/
+Data/Bot/Notice/
+Data/Bot/NoticeChannel.json
 Token/
 Modules/__pycache__/
 Modules/Test.py
-SimpleSQL/
+Utils/__pycache__

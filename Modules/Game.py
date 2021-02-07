@@ -121,7 +121,10 @@ class Game(commands.Cog):
             pass
         else:
             pass
-       
+    
+    @commands.command(name="포커", aliases=["poker"])
+    async def poker(self, ctx:commands.Context):
+        pass
     # 앞으로 만들 예정 #
 
     # 카드게임

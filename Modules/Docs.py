@@ -16,7 +16,7 @@ class Docs(commands.Cog):
         self.client = client
 
     @commands.command(name="help", aliases=["도움말", "Help", "도움"])
-    async def _help(self, ctx:commands.Context, category=None, command=None):
+    async def help(self, ctx:commands.Context, category=None, command=None):
         with open(f"{Path}/Help/Help/Help.json", "r") as File:
             Docs = json.load(fp=File)
 
@@ -190,9 +190,9 @@ class Docs(commands.Cog):
         with open(BotConfig, "r") as File:
             versionName = json.load(fp=File)["version"]
             if version == "Lastest":
-                LogPath += f"/DaeGal/Data/Help/ChangeLog/{versionName}.md"
+                LogPath += f"/DaeGal/Data/Bot/ChangeLog/{versionName}.md"
             else:
-                LogPath += f"/DaeGal/Data/Help/ChangeLog/{version}.md"
+                LogPath += f"/DaeGal/Data/Bot/ChangeLog/{version}.md"
 
         try:
             with open(LogPath, 'r') as ChangeLog:

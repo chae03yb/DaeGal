@@ -1,11 +1,10 @@
 import discord
-from discord import activity
+import discord.utils
 from discord.ext import commands
 import os
 import json
 import ConsoleColors as CC
 import Main
-import SimpleJSON
 #from Log import writeLog
 
 Path = "/DaeGal/Data/Guild"
@@ -61,6 +60,38 @@ class Bot(commands.Cog):
             color=0x30e330
         )
         await ctx.send(embed=embed)
+
+    @commands.command(name="notice", aliases=["공지"])
+    async def notice(self, ctx:commands.Context, File:str=None):
+        if File is None:
+            Embed = discord.Embed(
+                title="실패",
+                description="공지를 보낼 파일을 선택해야 합니다.",
+                color=0xFF0000
+            )
+            await ctx.send(embed=Embed)
+        elif not File.endswith(".md"):
+            Embed = discord.Embed(
+                title="실패",
+                description="*.md 파일이 필요합니다",
+                color=0xFF0000
+            )
+            await ctx.send(embed=Embed)
+        else:
+            with open(f"/DaeGal/Data/Bot/Notice/{File}", "r") as FileIO:
+                Embed = discord.Embed(
+                    title=FileIO.readline().strip("#"),
+                    description=f"```md\n" \
+                                f"{FileIO.read()}\n" \
+                                f"```",
+                    color=0xFFFF33
+                )
+                with open("/DaeGal/Data/Bot/NoticeChannel.json", "r") as ChannelListFile:
+                    ChannelLists: dict = json.load(fp=ChannelListFile)
+                    for ChannelID in ChannelLists.values():
+                        Channel = discord.utils.get(self.client.get_all_channels(), id=int(ChannelID))
+                        await Channel.send(embed=Embed)
+                    await ctx.send("성공")
 
 def setup(client):
     client.add_cog(Bot(client))
