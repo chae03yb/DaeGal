@@ -30,7 +30,7 @@ adminID = (
     480977114980417538, # 잠ㅅ갊#3497
 )
 
-DataPath = "/home/pi/Desktop/Bot/Data"
+DataPath = "/DaeGal/Data"
 
 def isOwner(ctx: commands.Context):
     return ctx.author.id in adminID
@@ -98,7 +98,7 @@ if __name__ == "__main__":
             client.load_extension(Module)
             Log.Write("Success", f"Loaded Module: {Module}")
         print("--------------------------------------------------")
-        with open("/home/pi/Desktop/Bot/Token/Token", "r") as Token:
+        with open("/DaeGal/Token/Token", "r") as Token:
             client.run(Token.read())
     except KeyboardInterrupt:
         Log.Write("Shutdown", "Terminated by KeyboardInterrupt")

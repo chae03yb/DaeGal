@@ -8,6 +8,7 @@ from os.path import join
 from re import split
 import SimpleJSON
 import DaeGal_Utils
+import Main
 
 Path = f"/DaeGal/Data"
 
@@ -17,6 +18,81 @@ class Docs(commands.Cog):
 
     @commands.command(name="help", aliases=["도움말", "Help", "도움"])
     async def help(self, ctx:commands.Context, category=None, command=None):
+        with open(f"{Path}/Help/Help/Help.json", "r") as File:
+            Docs = json.load(fp=File)
+
+            if category is None:
+                Embed = discord.Embed(
+                    title="카테고리 목록",
+                    color=0xFFCC00
+                )
+                for Cat in Docs.keys():
+                    Embed.add_field(
+                        name=str(Cat).strip("`"), 
+                        value=", ".join(Docs[Cat]["`info`"]["commandList"]), 
+                        inline=True
+                    )
+                
+                await ctx.send(embed=Embed)
+                # 카테고리 목록
+            elif command is None:
+                try:
+                    category = f"`{category}`"
+                    Embed = discord.Embed(
+                        title=f"명령어 목록: {category} ",
+                        color=0xFFCC00
+                    )
+                    for Com in Docs[category].keys():
+                        Embed.add_field(
+                            name=str(Com).strip("`"),
+                            value=f"{Docs[category][Com]['description'].strip('ㅤ')}",
+                            inline=False
+                        )
+                    await ctx.send(embed=Embed)
+                except KeyError:
+                    Embed = discord.Embed(
+                        title="오류",
+                        description=f"`{category}` 카테고리를 찾지 못했습니다",
+                        color=0xFF0000
+                    )
+                    await ctx.send(embed=Embed)
+            else:
+                try:
+                    category = f"`{category}`"
+                    command  = f"`{command}`"
+                    Help = Docs[category][command]
+                    Embed = discord.Embed(
+                        title=f"명령어: {category}/{command}",
+                        description=Help["description"],
+                        color=0xFFCC00 # int(Docs[category][command]["color"], 16)
+                    )
+                    if Help["type"] == "info":
+                        Embed.add_field(name="명령어 목록", value=", ".join(Help["commandList"]), inline=False)
+                    if Help["type"] == "command":
+                        if bool(Help["arguments"]):
+                            Embed.add_field(name="인수 목록", value="\n".join(Help["arguments"]), inline=False)
+                        else:
+                            Embed.add_field(name="인수 목록", value="**없음**", inline=False)
+                        
+                        Embed.add_field(name="사용", value=Help["use"], inline=False)
+
+                        if bool(Help["aliases"]):
+                            Embed.add_field(name="별칭", value=", ".join(Help["aliases"]), inline=False)
+                        else:
+                            Embed.add_field(name="별칭", value="**없음**", inline=False)
+
+                    await ctx.send(embed=Embed)
+                except KeyError:
+                    Embed = discord.Embed(
+                        title="오류",
+                        description=f"`{command}` 명령어를 찾지 못했습니다",
+                        color=0xFF0000
+                    )
+                    await ctx.send(embed=Embed)
+                    
+    @commands.command(name="_help")
+    @commands.check(Main.isOwner)
+    async def _help(self, ctx:commands.Context, category=None, command=None):
         with open(f"{Path}/Help/Help/Help.json", "r") as File:
             Docs = json.load(fp=File)
 

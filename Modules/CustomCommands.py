@@ -3,7 +3,7 @@ import Main
 import discord
 import DaeGal_Utils
 
-DataPath = "/home/pi/Desktop/Bot/Data"
+DataPath = "/DaeGal/Data"
 
 class CustomCommands(commands.Cog):
     def __init__(self, client):

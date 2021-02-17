@@ -92,6 +92,16 @@ class Bot(commands.Cog):
                         Channel = discord.utils.get(self.client.get_all_channels(), id=int(ChannelID))
                         await Channel.send(embed=Embed)
                     await ctx.send("성공")
+    
+    @commands.command(name="curVersion", aliases=["현재-버전"])
+    async def getCurrentVersion(self, ctx:commands.Context):
+        with open("/DaeGal/Data/Config.json", "r") as ConfigFile:
+            Embed = discord.Embed(
+                title="현재 버전",
+                description=f"현재 버전은 {json.load(fp=ConfigFile)['version']} 입니다.",
+                color=0x7777FF
+            )
+            await ctx.send(embed=Embed)
 
 def setup(client):
     client.add_cog(Bot(client))

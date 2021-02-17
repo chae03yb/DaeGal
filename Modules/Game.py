@@ -1,3 +1,4 @@
+import asyncio
 from discord.ext import commands
 import discord
 
@@ -38,7 +39,7 @@ class Game(commands.Cog):
             await ctx.send(f"{ctx.author.mention}, {random.choice(contents)}이(가) 좋겠네요")
     
     # @commands.command(name="조커뽑기")
-    async def Joker(self, ctx: commands.Context):
+    async def joker(self, ctx: commands.Context):
         pass
 
     # @commands.command(name="도박", aliases=["ㄷㅂ", "eq", "ehqkr"])
@@ -74,7 +75,7 @@ class Game(commands.Cog):
             # 함수 이름을 뭐로 하지
             async def do_allin(): # 다시 써야 해서 함수로 
                 with open(f"{Path}/Guild/{ctx.guild.id}/Members/{ctx.author.id}.json", "r") as File: 
-                    # Path(/home/pi/Desktop/Bot/Data) 여기 경로 아래에 있는
+                    # Path(/DaeGal/Data) 여기 경로 아래에 있는
                     # User 폴더 안에 명령어 친 사람의 18자리 ID의 이름을 가진 파일을 보는거임
                     Data = json.load(fp=File)["Economy"]
                     if Data["Money"] == 0:
@@ -122,9 +123,27 @@ class Game(commands.Cog):
         else:
             pass
     
-    @commands.command(name="포커", aliases=["poker"])
-    async def poker(self, ctx:commands.Context):
-        pass
+    # @commands.command(name="포커", aliases=["poker"])
+    async def poker(self, ctx:commands.Context, playerCount:int=1):
+        if not playerCount > 1:
+            return await ctx.send("참가 인원은 1명보다 작을 수 없습니다")
+        PlayerList = []
+        def getPlayers(reaction, user):
+            return reaction and user
+        
+        async def startGame():
+            await ctx.send("게임을 시작합니다")
+        
+        async def addUser():
+            reaction, user = await self.client.wait_for("reaction_add", check=getPlayers, timeout=30.0)
+            PlayerList.append(user.id)
+        try:
+            await addUser()
+        except asyncio.TimeoutError:
+            startGame()
+        else:
+            pass
+        
     # 앞으로 만들 예정 #
 
     # 카드게임

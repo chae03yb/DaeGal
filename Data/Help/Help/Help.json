@@ -6,7 +6,9 @@
             "commandList": [
                 "`invite`",
                 "`ping`",
-                "`sleep`"
+                "`sleep`",
+                "`curVersion`",
+                "`notice`"
             ]
         },
         "`invite`": {
@@ -15,7 +17,7 @@
             "arguments": [],
             "use": "`?invite`",
             "aliases": [
-                "`?초대`"
+                "`초대`"
             ]
         },
         "`ping`": {
@@ -24,7 +26,7 @@
             "arguments": [],
             "use": "`?ping`",
             "aliases": [
-                "`?핑`"
+                "`핑`"
             ]
         },
         "`sleep`": {
@@ -33,6 +35,26 @@
             "arguments": [],
             "use": "`?sleep`",
             "aliases": []
+        },
+        "`curVersion`": {
+            "type": "command",
+            "description": "현재 대갈의 최신 버전을 구합니다",
+            "arguments": [],
+            "use": "`?curVersion`",
+            "aliases": [
+                "`현재-버전`"
+            ]
+        },
+        "`notice`": {
+            "type": "command",
+            "description": "모든 서버의 공지 채널로 공지 메세지를 보냅니다.",
+            "arguments": [
+                "`File`: *.md로 끝나는 공지 파일"
+            ],
+            "use": "`?notice <File>`",
+            "aliases": [
+                "`공지`"
+            ]
         }
     },
     "`docs`": {
@@ -52,7 +74,7 @@
             ],
             "use": "`?memo <MemoName>`\n\n📝: 메모 쓰기\n🔍: 메모 보기\n🗑: 메모 삭제\n📁: 메모 검색",
             "aliases": [
-                "`?메모`"
+                "`메모`"
             ]
         },
         "`help`": {
@@ -64,9 +86,9 @@
             ],
             "use": "`?help [Category] [Command]`\n\n`?help`: 카테고리 목록을 보여줍니다\n`?help [Category]`: 카테고리 내의 명령어 목록을 보여줍니다\n`?help [Category] [Command]`: 명령어 도움말을 보여줍니다",
             "aliases": [
-                "`?Help`",
-                "`?도움`", 
-                "`?도움말`"
+                "`Help`",
+                "`도움`", 
+                "`도움말`"
             ]
         },
         "`changelog`": {
@@ -77,7 +99,7 @@
             ],
             "use": "`?changelog [Version]`",
             "aliases": [
-                "`?변경사항`"
+                "`변경사항`"
             ]
         }
     },
@@ -86,9 +108,9 @@
             "type": "info",
             "description": "간단한 오락 카테고리입니다",
             "commandList": [
-                "`?random`", 
-                "`?dice`", 
-                "`?choice`"
+                "`random`", 
+                "`dice`", 
+                "`choice`"
             ]
         },
         "`dice`": {
@@ -97,7 +119,7 @@
             "arguments": [],
             "use": "`?dice`",
             "aliases": [
-                "`?주사위`"
+                "`주사위`"
             ]
         },
         "`random`": {
@@ -109,7 +131,7 @@
             ],
             "use": "`?random <Min> <Max>`",
             "aliases": [
-                "`?랜덤`"
+                "`랜덤`"
             ]
         },
         "`choice`": {
@@ -121,7 +143,7 @@
             ],
             "use": "`?choice <Value1> [Value2 ...]`",
             "aliases": [
-                "`?선택`"
+                "`선택`"
             ]
         }
     },
@@ -130,14 +152,14 @@
             "type": "info",
             "description": "서버를 관리하는 명령어 카테고리입니다",
             "commandList": [
-                "`?setPunishRole`", 
-                "`?setDefaultRole`", 
-                "`?setBotRole`", 
-                "`?setWelcomeMessage`", 
-                "`?setWelcomeChannel`", 
+                "`setPunishRole`", 
+                "`setDefaultRole`", 
+                "`setBotRole`", 
+                "`setWelcomeMessage`", 
+                "`setWelcomeChannel`", 
                 "`setNoticeChannel`",
-                "`?clear`",
-                "`?출석`"
+                "`clear`",
+                "`출석`"
             ]
         },
         "`clear`": {
@@ -158,7 +180,7 @@
             ],
             "use": "`?setBotRole <role>`",
             "aliases": [
-                "`?봇_역할_설정`"
+                "`봇_역할_설정`"
             ]
         },
         "`setDefaultRole`": {
@@ -169,7 +191,7 @@
             ],
             "use": "`?setDefaultRole <role>`",
             "aliases": [
-                "`?기본_역할_설정`"
+                "`기본_역할_설정`"
             ]
         },
         "`setPunishRole`": {
@@ -209,7 +231,7 @@
             ],
             "use": "`?setNoticeChannel <Channel>`",
             "aliases": [
-                "`?공지채널_설정`"
+                "`공지채널_설정`"
             ]
         },
         "`출석`": {
@@ -219,7 +241,9 @@
                 "`comment`: 출석체크를 한 뒤의 코멘트입니다"
             ],
             "use": "`?<출석|ㅊㅊ> [comment]`",
-            "aliases": ["`?ㅊㅊ`"]
+            "aliases": [
+                "`ㅊㅊ`"
+            ]
         }
     },
     "`guilduser`": {
@@ -227,13 +251,13 @@
             "type": "info",
             "description": "서버의 유저를 관리하는 카테고리입니다\n이 카테고리의 명령어는 관리자 권한이 필요합니다",
             "commandList": [
-                "`?kick`", 
-                "`?ban`", 
-                "`?punish`", 
-                "`?release`",
-                "`?addRole`", 
-                "`?rmRole`", 
-                "`?warning`"
+                "`kick`", 
+                "`ban`", 
+                "`punish`", 
+                "`release`",
+                "`addRole`", 
+                "`rmRole`", 
+                "`warning`"
             ]
         },
         "`kick`": {
@@ -346,7 +370,7 @@
             ],
             "use": "`?mail`",
             "aliases": [
-                "`?메일`"
+                "`메일`"
             ]
         }
     },
@@ -355,9 +379,9 @@
             "type": "info",
             "description": "모듈을 관리합니다",
             "commandList": [
-                "`?load`", 
-                "`?unload`", 
-                "`?reload`"
+                "`load`", 
+                "`unload`", 
+                "`reload`"
             ]
         },
         "`load`": {
@@ -368,7 +392,7 @@
             ],
             "use": "`?load <Module>`",
             "aliases": [
-                "`?+ext`"
+                "`+ext`"
             ]
         },
         "`unload`": {
@@ -379,8 +403,8 @@
             ],
             "use": "`?unload <Module>`",
             "aliases": [
-                "`?-ext`",
-                "`?uload`"
+                "`-ext`",
+                "`uload`"
             ]
         },
         "`reload`": {
@@ -398,7 +422,8 @@
             "type": "info",
             "description": "잡다한 명령어 카테고리입니다",
             "commandList": [
-                "`?vote`"
+                "`vote`",
+                "`echo`"
             ]
         },
         "`vote`": {
@@ -410,7 +435,19 @@
             ],
             "use": "`?vote <Items> <Description>`",
             "aliases": [
-                "`?투표`"
+                "`투표`"
+            ]
+        },
+        "`echo`": {
+            "type": "command",
+            "description": "명령어 뒤에 나온 말을 똑같이 따라합니다",
+            "arguments": [
+                "`Anything: 따라할 아무 말`"
+            ],
+            "use": "`?echo Anything`",
+            "aliases": [
+                "`따라하기`",
+                "`말하기`"
             ]
         }
     },
@@ -419,8 +456,8 @@
             "type": "info",
             "description": "유저에 관련된 명령어 카테고리입니다",
             "commandList": [
-                "`?profile`", 
-                "`?EditProfile`"
+                "`profile`", 
+                "`EditProfile`"
             ]
         },
         "`profile`": {

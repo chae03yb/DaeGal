@@ -34,8 +34,8 @@ adminID = (
     480977114980417538, # 잠ㅅ갊#3497 
 )
 
-LogPath = "/home/pi/Desktop/Bot/Data/Log"
-Path    = "/home/pi/Desktop/Bot/Data"
+Path    = "/DaeGal/Data"
+LogPath = f"{Path}/Log"
 
 def isOwner(ctx):
     return ctx.author.id in adminID
@@ -115,11 +115,6 @@ class Main(commands.Cog):
                     color=0xFF0000
                 )
                 await ctx.send(embed=Embed)
-
-    @commands.command(name="currentMainVer", aliases=["curMainVer"])
-    @commands.check(isOwner)
-    async def currentMainVer(self, ctx: commands.Context):
-        await ctx.send("VER: STABLE")
 
     @commands.command(name="disableCategory", aliases=["카테고리_비활성화"])
     # @commands.has_permissions(administrator=True)

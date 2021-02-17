@@ -11,6 +11,7 @@ import os.path
 import asyncio
 import time
 import Main
+import SimpleJSON
 
 Path = "/DaeGal/Data/Guild/"
 
@@ -20,15 +21,19 @@ class Guild(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_join(self, member: discord.Member):
-        try:
-            if member.bot == False:
-                with open(f"{Path}/{member.guild.id}/Role/DefaultRole.json", "r") as File:
-                    await member.add_roles(utils.get(member.guild.roles, id=json.load(File, encoding="utf-8")["roleID"]), atomic=True)
-            if member.bot == True:
-                with open(f"{Path}/{member.guild.id}/Role/BotRole.json", "r") as File:
-                    await member.add_roles(utils.get(member.guild.roles, id=json.load(File, encoding="utf-8")["roleID"]), atomic=True)
-        except FileNotFoundError:
-            pass
+        if member.bot == False:
+            try:
+                with open(f"{Path}/{member.guild.id}/GuildConfig.json", "r") as File:
+                    await member.add_roles(utils.get(member.guild.roles, id=json.load(File, encoding="utf-8")["Role"]["MemberRole"]), atomic=True)
+            except (FileNotFoundError, KeyError):
+                pass
+        if member.bot == True:
+            try:
+                with open(f"{Path}/{member.guild.id}/GuildConfig.json", "r") as File:
+                    await member.add_roles(utils.get(member.guild.roles, id=json.load(File, encoding="utf-8")["Role"]["BotRole"]), atomic=True)
+            except (FileNotFoundError, KeyError):
+                pass
+
         try:
             Embed = None
             with open(f"{Path}/{member.guild.id}/Welcome/Message", "r") as File:
@@ -37,17 +42,19 @@ class Guild(commands.Cog):
                     title="환영합니다",
                     description=File.read()
                 )
-            with open(f"{Path}/{member.guild.id}/Welcome/Channel.json", "r") as File:
-                await member.guild.get_channel(json.load(fp=File)["ChannelID"]).send(embed=Embed)
+            try:
+                with open(f"{Path}/{member.guild.id}/GuildConfig.json", "r") as File:
+                    await member.guild.get_channel(json.load(fp=File)["Channel"]["WelcomeChannel"]).send(embed=Embed)
+            except Exception:
+                return
         except FileNotFoundError:
-            pass
+            return
 
     @commands.Cog.listener(name="on_guild_join")
     async def onGuildJoin(self, guild: discord.Guild):
         os.mkdir(f"{Path}/{guild.id}")
         os.mkdir(f"{Path}/{guild.id}/Members")
         os.mkdir(f"{Path}/{guild.id}/Memo")
-        os.mkdir(f"{Path}/{guild.id}/Role")
         os.mkdir(f"{Path}/{guild.id}/Welcome")
 
     @commands.command(name="setPunishRole", aliases=["정지_역할_설정"])
@@ -158,65 +165,49 @@ class Guild(commands.Cog):
     @commands.guild_only()
     async def attendance(self, ctx: commands.Context, *, comment=None):
         DataPath = f"/DaeGal/Data/Guild/{ctx.guild.id}/Members"
-        DataFile = f"{DataPath}/attendanceList.json"
+        AttFile = f"{DataPath}/attendanceList.json"
+        AttendanceData = {}
+
+        try:
+            AttendanceData = SimpleJSON.Read(AttFile)
+        except FileNotFoundError:
+            SimpleJSON.Write(Path=AttFile, Object={})
 
         os.makedirs(DataPath, exist_ok=True)
         if comment is not None:
-            comment += f"\n\n> {comment}"
+            comment = f"\n\n> {comment}"
         if comment is None:
             comment = ""
-        
-        try:
-            with open(DataFile, "r") as FileIO:
-                AttendantData = json.load(fp=FileIO)[f"{ctx.author.id}"]
 
-                if time.strftime(r"%Y-%m-%d", time.localtime()) == AttendantData["lastAttendance"]:
-                    Embed = discord.Embed(
-                        title="이미 출석했습니다",
-                        description="하루에 한 번만 출석할 수 있습니다",
-                        color=0xFF0000
-                    )
-                    await ctx.send(embed=Embed)
-                else:
-                    AttendantData["lastAttendance"] = time.strftime(r"%Y-%m-%d", time.localtime())
-                    AttendantData["count"] += 1
-
-                    Embed = discord.Embed(
-                        title="✅",
-                        description=f"현재 {ctx.author}님의 출석 횟수는 {AttendantData['count']}회 입니다 {comment}",
-                        color=0x00FF00
-                    )
-                    await ctx.send(embed=Embed)
-
-        except KeyError:
-            FileData = {}
-            with open(DataFile, "r") as FileIO:
-                FileData = json.load(fp=FileIO)
-                FileData.update({ f"{ctx.author.id}": { "count": 1, "lastAttendance": time.strftime(r"%Y-%m-%d", time.localtime()) }})
-
-            with open(DataFile, "w") as dFile:
-                json.dump(fp=dFile, obj=FileData, indent=4)
-            
+        if f"{ctx.author.id}" not in AttendanceData.keys():
+            AttendanceData.update({
+                f"{ctx.author.id}": {
+                    "count": 1,
+                    "lastAttendance": time.strftime(r"%Y-%m-%d", time.localtime())
+                }
+            })
+            SimpleJSON.Write(Path=AttFile, Object=AttendanceData)
             Embed = discord.Embed(
-                title="✅",
-                description=f"현재 {ctx.author}님의 출석 횟수는 1회 입니다 {comment}",
-                color=0x00FF00
+               title="✅",
+               description=f"현재 {ctx.author}님의 출석 횟수는 1회 입니다 {comment}",
+               color=0x00FF00
             )
             await ctx.send(embed=Embed)
-        except FileNotFoundError:
-            with open(DataFile, "w") as FileIO:
-                obj = {
-                    f"{ctx.author.id}": {
-                        "count": 1,
-                        "lastAttendance": time.strftime(r"%Y-%m-%d", time.localtime())
-                    }
-                }
-                
-                json.dump(fp=FileIO, obj=obj, indent=4)
-                
+        else:
+            if AttendanceData[f"{ctx.author.id}"]["lastAttendance"] == time.strftime(r"%Y-%m-%d", time.localtime()):
+                Embed = discord.Embed(
+                    title="이미 출석했습니다",
+                    description="하루에 한 번만 출석할 수 있습니다",
+                    color=0xFF0000
+                )
+                await ctx.send(embed=Embed)
+            else:
+                AttendanceData[f"{ctx.author.id}"]["count"] += 1
+                AttendanceData[f"{ctx.author.id}"]["lastAttendance"] = time.strftime(r"%Y-%m-%d", time.localtime())
+                SimpleJSON.Write(Path=AttFile, Object=AttendanceData)
                 Embed = discord.Embed(
                     title="✅",
-                    description=f"현재 {ctx.author}님의 출석 횟수는 1회 입니다 {comment}",
+                    description=f"현재 {ctx.author}님의 출석 횟수는 {AttendanceData[f'{ctx.author.id}']['count']}회 입니다 {comment}",
                     color=0x00FF00
                 )
                 await ctx.send(embed=Embed)

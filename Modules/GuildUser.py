@@ -1,12 +1,18 @@
-import asyncio
-import json
-import os
 import discord
 from discord.ext import commands
 from discord.utils import get
-import Main
 
-Path = "/home/pi/Desktop/Bot/Data/Guild"
+import asyncio
+import json
+import os
+
+import Main
+import ConsoleColors as CC
+
+import SimpleJSON
+import DaeGal_Utils
+
+Path = "/DaeGal/Data/Guild"
 ONE_HOUR = 60 * 60
 
 class GuildUser(commands.Cog):
@@ -87,6 +93,126 @@ class GuildUser(commands.Cog):
     async def removeRole(self, ctx: commands.Context, target: discord.Member, role: discord.Role=None):
         await target.remove_roles(role)
         await ctx.send(f"{target.name}의 \"{role.name}\" 역할을 제거했습니다")
+
+    @commands.command(name="punish", aliases=["정지"])
+    @commands.has_permissions(administrator=True)
+    @commands.guild_only()
+    async def punish(self, ctx: commands.Context, target: discord.Member=None, time: float=0):
+        # return await ctx.send("현재 사용할 수 없습니다.")
+        PunishRole  = None
+        DefaultRole = None
+        if target is None:
+            await ctx.send("대상이 필요합니다.")
+            return
+        if time == 0:
+            await ctx.send("정지 시간이 필요합니다.")
+            return
+        if "PunishRole.json" not in os.listdir(f"{Path}/{ctx.guild.id}/Role"):
+            await ctx.send("정지 역할을 설정해야 합니다.")
+            return
+        if "DefaultRole.json" not in os.listdir(f"{Path}/{ctx.guild.id}/Role"):
+            await ctx.send("기본 역할을 설정해야 합니다.")
+            return
+        elif "PunishConfig.json" is os.listdir(F"{Path}/{ctx.guild.id}/"):
+            Config = json.load(fp=open(F"{Path}/{ctx.guild.id}/PunishConfig.json", "r"))
+        if "DefaultRole.json" not in os.listdir(F"{Path}/{ctx.guild.id}/Role") and "PunishRole.json" not in os.listdir(F"{Path}/{ctx.guild.id}/Roles"):
+            return await ctx.send("기본 역할과 정지 역할을 설정하지 않았습니다.")
+        else:
+            PunishRole  = json.load(fp=open(f"{Path}/{ctx.guild.id}/Role/PunishRole.json", "r"))["roleID"]
+            DefaultRole = json.load(fp=open(f"{Path}/{ctx.guild.id}/Role/DefaultRole.json", "r"))["roleID"]
+            async def Start(ctx: commands.Context):
+                await target.add_roles(discord.utils.get(ctx.guild.roles, id=PunishRole))
+                await target.remove_roles(discord.utils.get(ctx.guild.roles, id=DefaultRole))
+                await asyncio.sleep(time * ONE_HOUR)
+                await ctx.send("대상을 정지했습니다.")
+            await Start(ctx)
+            await asyncio.sleep(time)
+            await self.release(ctx=ctx, target=target, auto=True)
+
+    @commands.command(name="release", aliases=["정지취소"])
+    @commands.has_permissions(administrator=True)
+    @commands.guild_only()
+    async def release(self, ctx: commands.Context, target: discord.Member, auto:bool=False):
+        with open(f"{Path}/{ctx.guild.id}/GuildConfig.json", "r") as punishRole:
+            PunishRole  = json.load(fp=punishRole)["Role"]["PunishRole"]
+        with open(f"{Path}/{ctx.guild.id}/GuildConfig.json", "r") as defaultRole:
+            DefaultRole = json.load(fp=defaultRole)["Role"]["MemberRole"]
+        await target.add_roles(discord.utils.get(ctx.guild.roles, id=DefaultRole))
+        await target.remove_roles(discord.utils.get(ctx.guild.roles, id=PunishRole))
+        if auto == True: await ctx.channel.send("정지가 끝났습니다.")
+        elif auto == False: await ctx.channel.send("정지가 취소되었습니다.")
+
+    @commands.command(name="warning")
+    @commands.guild_only()
+    async def warning(self, ctx: commands.Context, target: discord.Member=None, amount: int=1):
+        if target is None:
+            Embed = discord.Embed(
+                title="오류",
+                description="대상이 설정되지 않았습니다",
+                color=0xFF0000
+            )
+            await ctx.send(embed=Embed)
+        else:
+            wPath = f"{Path}/{ctx.guild.id}/Members/WarningList.json"
+            Embed = None
+            async def giveWarning():
+                with open(wPath, 'r') as WarningListFile:
+                    WarningList = json.load(fp=WarningListFile)
+
+                    try:
+                        WarningList[str(target.id)] += amount
+                    except KeyError:
+                        WarningList.update({f"{target.id}":amount})
+                        SimpleJSON.Write(wPath, WarningList)
+
+                    try:
+                        Config = json.load(fp=open(f"{Path}/{ctx.guild.id}/PunishConfig.json", "r"))
+
+                        WarningLimit      = Config["WarningLimit"]
+                        DefaultPunishTime = Config["DefaultPunishTime"]
+
+                        WarningList[str(target.id)] -= WarningLimit
+                        if (WarningList[str(target.id)] >= WarningLimit) and Config["AutoPunish"]:
+                            await self.punish(ctx=ctx, target=target, time=DefaultPunishTime)
+                    except FileNotFoundError:
+                        pass
+                    except Exception as E:
+                        Embed = discord.Embed(
+                            title="오류",
+                            description=f"```{E}```",
+                            color=0xFF0000
+                        )
+                    else:
+                        Embed = discord.Embed(
+                            title="성공",
+                            description=f"{target.name}에게 경고 {amount} 개를 주었습니다.",
+                            color=0x00FF00
+                        )
+                    finally:
+                        await ctx.send(embed=Embed)
+            try:
+                await giveWarning()
+            except FileNotFoundError:
+                SimpleJSON.Write(Path=wPath, Object={})
+            finally:
+                await giveWarning()
+     
+    @commands.command(name="warninglist")
+    async def warninglist(self, ctx: commands.Context, target: discord.Member=None):
+        try:
+            if target is None:
+                target = ctx.author
+            with open(F"{Path}/{ctx.guild.id}/Members/WarningList.json", 'r', encoding="utf-8") as List:
+                try:
+                    jsonData = json.load(List)
+                    userWarningCount = jsonData[str(target.id)]
+                    Embed=discord.Embed(title="경고 목록", description=f"사용자: {target}", color=0xFF0000)
+                    Embed.add_field(name="경고 횟수", value=userWarningCount)
+                    await ctx.send(embed=Embed)
+                except KeyError:
+                    return await ctx.send("당신은 아직 경고를 받지 않았습니다.")
+        except FileNotFoundError:
+            return await ctx.send("이 서버에는 아직 경고를 받은 사람이 없습니다.")
     
 def setup(client):
     client.add_cog(GuildUser(client))

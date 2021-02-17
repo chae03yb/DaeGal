@@ -54,7 +54,7 @@ class Others(commands.Cog):
             for i in range(0, itemAmount):
                 await msg.add_reaction(itemList[i])
 
-    @commands.command(name="timer", aliases=["타이머"])
+    # @commands.command(name="timer", aliases=["타이머"])
     async def timer(self, ctx:commands.Context, time=None):
         if time is None:
             Embed = discord.Embed(
@@ -65,6 +65,18 @@ class Others(commands.Cog):
             await ctx.send(embed=Embed)
         
         asyncio.sleep()
+
+    @commands.command(name="echo", aliases=["따라하기", "말하기"])
+    async def echo(self, ctx:commands.Context, *args):
+        if args == ():
+            Embed = discord.Embed(
+                title="오류",
+                description="문장이 필요합니다",
+                color=0xFF0000
+            )
+            await ctx.send(embed=Embed)
+        else:
+            await ctx.send(f"{ctx.author.mention}: {' '.join(args)}")
 
 def setup(client):
     client.add_cog(Others(client))

@@ -5,15 +5,17 @@ import os
 import json
 import Main
 
+Path = f"/DaeGal/Data"
+
 class MailService(commands.Cog):
     def __init__(self, client):
         self.client = client
 
-    @commands.command(name="mail", aliases=["메일"])
+    # @commands.command(name="mail", aliases=["메일"])
     @commands.dm_only()
     @commands.check(Main.isOwner)
     async def mail(self, ctx: commands.Context):
-        Path = "/home/pi/Desktop/Bot/Data/Mail"
+        Path = f"{Path}/Mail"
         Embed = discord.Embed(
             color=0x000000,
             title="메일",
@@ -39,7 +41,7 @@ class MailService(commands.Cog):
             return
         else:
             try:
-                with open("/home/pi/Desktop/Bot/Data/User/UserList.json", "r") as File:
+                with open("/DaeGal/Data/User/UserList.json", "r") as File:
                     User = json.load(fp=File, encoding="ascii")[str(ctx.message.author.id)]
                     reaction = str(reaction.emoji)
 

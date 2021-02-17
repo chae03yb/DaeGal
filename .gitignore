@@ -8,4 +8,4 @@ Data/Bot/NoticeChannel.json
 Token/
 Modules/__pycache__/
 Modules/Test.py
-Utils/__pycache__
+Utils/__pycache__/
