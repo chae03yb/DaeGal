@@ -10,4 +10,4 @@ Token/
 
 Modules/__pycache__/
 Modules/Test.py
-Utils/__pycache__/*.pyc
+Utils/__pycache__/
