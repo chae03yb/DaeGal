@@ -1,7 +1,7 @@
+import Logger
 import discord
 from discord.ext import commands
 import ConsoleColors as CC
-from discord.ext.commands.core import command
 
 class ErrorHandler(commands.Cog):
     def __init__(self, client):
@@ -81,7 +81,7 @@ class ErrorHandler(commands.Cog):
                 color=0xFF0000
             )
             await ctx.send(embed=Embed)
-            print(f"{CC.BG.RED} E: {error} {CC.EFCT.CLEAR}")
+            Logger.write("ERROR", error, open("./Data/Log/log.log", "a"))
             # await ctx.send(f"E: {error}")
 
 def setup(client):

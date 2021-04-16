@@ -18,10 +18,6 @@ class Bot(commands.Cog):
     @commands.command(name="ping", aliases=["핑"])
     async def ping(self, ctx: commands.Context):
         await ctx.send(f"pong! `{int(self.client.latency * 1000)}ms`")
-
-    @commands.command(name="statusCheck")
-    async def statusCheck(self, ctx:commands.Context):
-        await ctx.send("Main bot is online!")
     
     @commands.command(name="invite", aliases=["초대"])
     async def Invite(self, ctx: commands.Context):
@@ -102,6 +98,12 @@ class Bot(commands.Cog):
                 color=0x7777FF
             )
             await ctx.send(embed=Embed)
+
+    @commands.command(name="getLog", aliases=["로그_확인", "getlog"])
+    async def getlog(self, ctx:commands.Context, lines:int=10):
+        with open(f"./Data/Log/log.log", "r") as Log:
+            print(Log.readlines()[-lines:])
+            await ctx.send(Log.readlines()[-lines:])
 
 def setup(client):
     client.add_cog(Bot(client))

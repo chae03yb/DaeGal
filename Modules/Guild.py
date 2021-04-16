@@ -1,16 +1,10 @@
 import os
-import sys
-
-from discord.embeds import Embed
-
 import discord
 from discord.ext import commands
 from discord import utils
 import json
 import os.path
-import asyncio
 import time
-import Main
 import SimpleJSON
 
 Path = "/DaeGal/Data/Guild/"
@@ -21,18 +15,14 @@ class Guild(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_join(self, member: discord.Member):
-        if member.bot == False:
-            try:
-                with open(f"{Path}/{member.guild.id}/GuildConfig.json", "r") as File:
-                    await member.add_roles(utils.get(member.guild.roles, id=json.load(File, encoding="utf-8")["Role"]["MemberRole"]), atomic=True)
-            except (FileNotFoundError, KeyError):
-                pass
-        if member.bot == True:
-            try:
-                with open(f"{Path}/{member.guild.id}/GuildConfig.json", "r") as File:
-                    await member.add_roles(utils.get(member.guild.roles, id=json.load(File, encoding="utf-8")["Role"]["BotRole"]), atomic=True)
-            except (FileNotFoundError, KeyError):
-                pass
+        Role = SimpleJSON.Read(f"{Path}/{member.guild.id}/GuildConfig.json")["Role"]
+        try:
+            if not member.bot:
+                await member.add_roles(utils.get(member.guild.roles, id=Role["MemberRole"]), atomic=True)
+            if member.bot:
+                await member.add_roles(utils.get(member.guild.roles, id=Role["BotRole"]), atomic=True)
+        except (FileNotFoundError, KeyError):
+            pass
 
         try:
             Embed = None
@@ -161,40 +151,25 @@ class Guild(commands.Cog):
             )
             await ctx.send(embed=errEmbed)
     
-    @commands.command(name="출석", aliases = ["ㅊㅊ"])
+    @commands.command(name="출석", aliases = ["ㅊㅊ", "cc"])
     @commands.guild_only()
-    async def attendance(self, ctx: commands.Context, *, comment=None):
+    async def attendance(self, ctx: commands.Context, *, comment:str=None):
         DataPath = f"/DaeGal/Data/Guild/{ctx.guild.id}/Members"
-        AttFile = f"{DataPath}/attendanceList.json"
-        AttendanceData = {}
-
-        try:
-            AttendanceData = SimpleJSON.Read(AttFile)
-        except FileNotFoundError:
-            SimpleJSON.Write(Path=AttFile, Object={})
+        DataFile = f"{DataPath}/attendanceList.json"
 
         os.makedirs(DataPath, exist_ok=True)
         if comment is not None:
+            if len(comment) > 500:
+                comment = comment.replace(comment[500:], " ...")
+            if "\n" in comment: comment = comment.replace(comment[comment.find("\n")], "\n> ")
             comment = f"\n\n> {comment}"
         if comment is None:
             comment = ""
+        
+        try:
+            AttendantData = SimpleJSON.Read(Path=f"{Path}/{ctx.guild.id}/Members/attendanceList.json")
 
-        if f"{ctx.author.id}" not in AttendanceData.keys():
-            AttendanceData.update({
-                f"{ctx.author.id}": {
-                    "count": 1,
-                    "lastAttendance": time.strftime(r"%Y-%m-%d", time.localtime())
-                }
-            })
-            SimpleJSON.Write(Path=AttFile, Object=AttendanceData)
-            Embed = discord.Embed(
-               title="✅",
-               description=f"현재 {ctx.author}님의 출석 횟수는 1회 입니다 {comment}",
-               color=0x00FF00
-            )
-            await ctx.send(embed=Embed)
-        else:
-            if AttendanceData[f"{ctx.author.id}"]["lastAttendance"] == time.strftime(r"%Y-%m-%d", time.localtime()):
+            if time.strftime(r"%Y-%m-%d", time.localtime()) == AttendantData[f"{ctx.author.id}"]["lastAttendance"]:
                 Embed = discord.Embed(
                     title="이미 출석했습니다",
                     description="하루에 한 번만 출석할 수 있습니다",
@@ -202,15 +177,52 @@ class Guild(commands.Cog):
                 )
                 await ctx.send(embed=Embed)
             else:
-                AttendanceData[f"{ctx.author.id}"]["count"] += 1
-                AttendanceData[f"{ctx.author.id}"]["lastAttendance"] = time.strftime(r"%Y-%m-%d", time.localtime())
-                SimpleJSON.Write(Path=AttFile, Object=AttendanceData)
+                AttendantData[f"{ctx.author.id}"]["lastAttendance"] = time.strftime(r"%Y-%m-%d", time.localtime())
+                AttendantData[f"{ctx.author.id}"]["count"] += 1
+                SimpleJSON.Write(Path=DataFile, Object=AttendantData)
+
                 Embed = discord.Embed(
                     title="✅",
-                    description=f"현재 {ctx.author}님의 출석 횟수는 {AttendanceData[f'{ctx.author.id}']['count']}회 입니다 {comment}",
+                    description=f"현재 {ctx.author}님의 출석 횟수는 {AttendantData[f'{ctx.author.id}']['count']}회 입니다 {comment}",
                     color=0x00FF00
                 )
                 await ctx.send(embed=Embed)
+
+        except KeyError:
+            FileData = SimpleJSON.Read(Path=DataFile)
+            FileData.update({ 
+                f"{ctx.author.id}": { 
+                    "count": 1, 
+                    "lastAttendance": time.strftime(r"%Y-%m-%d", time.localtime()) 
+                }
+            })
+
+            SimpleJSON.Write(Path=DataFile, Object=FileData)
+            
+            Embed = discord.Embed(
+                title="✅",
+                description=f"현재 {ctx.author}님의 출석 횟수는 1회 입니다 {comment}",
+                color=0x00FF00
+            )
+            await ctx.send(embed=Embed)
+        except FileNotFoundError:
+            SimpleJSON.Write(Path=DataFile, Object={
+                f"{ctx.author.id}": {
+                    "count": 1,
+                    "lastAttendance": time.strftime(r"%Y-%m-%d", time.localtime())
+                }
+            })
+            Embed = discord.Embed(
+                title="✅",
+                description=f"현재 {ctx.author}님의 출석 횟수는 1회 입니다 {comment}",
+                color=0x00FF00
+            )
+            await ctx.send(embed=Embed)
+        finally:
+            try:
+                await ctx.message.delete()
+            except:
+                pass
 
 def setup(client):
     client.add_cog(Guild(client))

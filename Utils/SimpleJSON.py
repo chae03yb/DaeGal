@@ -13,57 +13,39 @@ def Read(Path=None):
 def Write(Path=None, Object=None):
     if Path is None:
         raise RequirePath
-    if Object is None:
+    if Object == {}:
+        pass
+    elif Object is None:
         raise RequireObject
-    else:
-        with open(Path, 'w') as File:
-            json.dump(fp=File, obj=Object, indent=4)
+    with open(Path, 'w') as File:
+        json.dump(fp=File, obj=Object, indent=4)
 
 def BackupWrite(Path=None, Object=None) -> str:
     if Path is None:
         raise RequirePath
-    if Object is None:
+    if Object == {}:
+        pass
+    elif Object is None:
         raise RequireObject
-    else:
-        originalFileName = str(Path).split('.')
-        backupFileName = originalFileName[0] + "_backup" + originalFileName[1]
-        shutil.copyfile(src=Path, dst=backupFileName)
-        result = 0
-        try:
-            with open(Path, 'w') as File:
-                json.dump(fp=File, obj=Object, indent=4)
-            result = "success"
-        except json.JSONDecodeError:
-            with open(backupFileName, 'r') as File:
-                Data = File.read()
-                with open(Path, 'r') as File:
-                    json.dump(fp=File, obj=Data, indent=4)
-                result = f"JSONDecodeError\n\n{json.JSONDecodeError.msg}"
-        except Exception as Error:
-            result = Error
-        finally:
-            os.remove(path=backupFileName)
-            return result
-
-def BackupWrite_WithoutInternalErrorHandler(Path=None, Object=None):
-    if Path is None:
-        raise RequirePath
-    if Object is None:
-        raise RequireObject
-    else:
-        originalFileName = str(Path).split('.')
-        backupFileName = originalFileName[0] + "_backup" + originalFileName[1]
-        shutil.copyfile(src=Path, dst=backupFileName)
-        try:
-            with open(Path, 'w') as File:
-                json.dump(fp=File, obj=Object, indent=4)
-        except json.JSONDecodeError:
-            with open(backupFileName, 'r') as File:
-                Data = File.read()
-                with open(Path, 'r') as File:
-                    json.dump(fp=File, obj=Data, indent=4)
-        finally:
-            os.remove(path=backupFileName)
+    originalFileName = str(Path).split('.')
+    backupFileName = originalFileName[0] + "_backup" + originalFileName[1]
+    shutil.copyfile(src=Path, dst=backupFileName)
+    result = 0
+    try:
+        with open(Path, 'w') as File:
+            json.dump(fp=File, obj=Object, indent=4)
+        result = "success"
+    except json.JSONDecodeError:
+        with open(backupFileName, 'r') as File:
+            Data = File.read()
+            with open(Path, 'r') as File:
+                json.dump(fp=File, obj=Data, indent=4)
+            result = f"JSONDecodeError\n\n{json.JSONDecodeError.msg}"
+    except Exception as Error:
+        result = Error
+    finally:
+        os.remove(path=backupFileName)
+        return result
 
 class SimpleJSONExceptions(Exception): pass
 class RequirePath(SimpleJSONExceptions): pass

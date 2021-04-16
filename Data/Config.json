@@ -1,4 +1,12 @@
 {
-    "loginCount": 0,
-    "version": "1.2"
+    "version": "1.2",
+    "DevList": [
+        434549321216688128,
+        480977114980417538 
+    ],
+    "ModuleList":   [
+        "Main"
+    ],
+    "reloadIgnore": [],
+    "UnusedModule": []
 }

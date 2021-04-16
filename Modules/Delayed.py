@@ -32,4 +32,3 @@ class Guild:
                     color=0xFF0000
                 )
                 await ctx.send(embed=Embed)
-

@@ -1,6 +1,6 @@
 {
-    "`bot`": {
-        "`info`": {
+    "bot": {
+        "info": {
             "type": "info",
             "description": "봇과 관련된 명령어 카테고리입니다\nㅤ",
             "commandList": [
@@ -11,8 +11,9 @@
                 "`notice`"
             ]
         },
-        "`invite`": {
+        "invite": {
             "type": "command",
+            "isDeprecated": false,
             "description": "봇의 초대 링크를 보냅니다\nㅤ",
             "arguments": [],
             "use": "`?invite`",
@@ -20,8 +21,9 @@
                 "`초대`"
             ]
         },
-        "`ping`": {
+        "ping": {
             "type": "command",
+            "isDeprecated": false,
             "description": "pong! 메세지와 지연시간을 ms 단위를 보냅니다\nㅤ",
             "arguments": [],
             "use": "`?ping`",
@@ -29,24 +31,17 @@
                 "`핑`"
             ]
         },
-        "`sleep`": {
+        "sleep": {
             "type": "command",
+            "isDeprecated": false,
             "description": "봇을 종료합니다\nㅤ",
             "arguments": [],
             "use": "`?sleep`",
             "aliases": []
         },
-        "`curVersion`": {
+        "notice": {
             "type": "command",
-            "description": "현재 대갈의 최신 버전을 구합니다",
-            "arguments": [],
-            "use": "`?curVersion`",
-            "aliases": [
-                "`현재-버전`"
-            ]
-        },
-        "`notice`": {
-            "type": "command",
+            "isDeprecated": false,
             "description": "모든 서버의 공지 채널로 공지 메세지를 보냅니다.",
             "arguments": [
                 "`File`: *.md로 끝나는 공지 파일"
@@ -57,8 +52,8 @@
             ]
         }
     },
-    "`docs`": {
-        "`info`": {
+    "docs": {
+        "info": {
             "type": "info",
             "description": "문서를 관리하는 카테고리입니다\nㅤ",
             "commandList": [
@@ -66,8 +61,9 @@
                 "`Memo`"
             ]
         },
-        "`memo`": {
+        "memo": {
             "type": "command",
+            "isDeprecated": false,
             "description": "메모를 관리합니다\nㅤ",
             "arguments": [
                 "`MemoName`: 메모의 이름입니다\n메모 이름에는 `.`, `/` 문자는 들어갈 수 없습니다"
@@ -77,8 +73,9 @@
                 "`메모`"
             ]
         },
-        "`help`": {
+        "help": {
             "type": "command",
+            "isDeprecated": false,
             "description": "도움말을 보여줍니다",
             "arguments": [
                 "`Category`: 카테고리 이름",
@@ -90,21 +87,10 @@
                 "`도움`", 
                 "`도움말`"
             ]
-        },
-        "`changelog`": {
-            "type": "command",
-            "description": "변경사항을 확인합니다",
-            "arguments": [
-                "`Version`: 확인할 버전입니다"
-            ],
-            "use": "`?changelog [Version]`",
-            "aliases": [
-                "`변경사항`"
-            ]
         }
     },
-    "`game`": {
-        "`info`": {
+    "game": {
+        "info": {
             "type": "info",
             "description": "간단한 오락 카테고리입니다",
             "commandList": [
@@ -113,8 +99,9 @@
                 "`choice`"
             ]
         },
-        "`dice`": {
+        "dice": {
             "type": "command",
+            "isDeprecated": false,
             "description": "1~6 사이의 무작위 수를 뽑습니다",
             "arguments": [],
             "use": "`?dice`",
@@ -122,8 +109,9 @@
                 "`주사위`"
             ]
         },
-        "`random`": {
+        "random": {
             "type": "command",
+            "isDeprecated": false,
             "description": "두 인자 사이의 무작위 정수 값을 뽑습니다",
             "arguments": [
                 "`Min`: 최소값",
@@ -134,8 +122,9 @@
                 "`랜덤`"
             ]
         },
-        "`choice`": {
+        "choice": {
             "type": "command",
+            "isDeprecated": false,
             "description": "무작위로 여러 항목중 하나를 뽑습니다",
             "arguments": [
                 "Value1: 선택할 항목, 최소 1개",
@@ -147,23 +136,18 @@
             ]
         }
     },
-    "`guild`": {
-        "`info`": {
+    "guild": {
+        "info": {
             "type": "info",
             "description": "서버를 관리하는 명령어 카테고리입니다",
             "commandList": [
-                "`setPunishRole`", 
-                "`setDefaultRole`", 
-                "`setBotRole`", 
-                "`setWelcomeMessage`", 
-                "`setWelcomeChannel`", 
-                "`setNoticeChannel`",
                 "`clear`",
                 "`출석`"
             ]
         },
-        "`clear`": {
+        "clear": {
             "type": "command",
+            "isDeprecated": false,
             "description": "채널의 메세지를 입력받은 수 만큼 삭제합니다",
             "arguments": [
                 "`reach`: 1 이상의 정수",
@@ -172,70 +156,9 @@
             "use": "`?clear <reach> [keyword]`",
             "aliases": []
         },
-        "`setBotRole`": {
+        "출석": {
             "type": "command",
-            "description": "서버에 입장하는 봇에게 자동으로 부여할 역할을 설정합니다",
-            "arguments": [
-                "`role`: 역할 언급/역할 이름"
-            ],
-            "use": "`?setBotRole <role>`",
-            "aliases": [
-                "`봇_역할_설정`"
-            ]
-        },
-        "`setDefaultRole`": {
-            "type": "command",
-            "description": "서버에 입장하는 유저에게 자동으로 부여될 역할을 설정합니다\n또한 `?punish` 명령어의 제재가 끝난 후 자동으로 부여되는 역할입니다",
-            "arguments": [
-                "`role`: 역할 언급/역할 이름"
-            ],
-            "use": "`?setDefaultRole <role>`",
-            "aliases": [
-                "`기본_역할_설정`"
-            ]
-        },
-        "`setPunishRole`": {
-            "type": "command",
-            "description": "정지를 받는 역할을 설정합니다\n이 역할은 `?punish` 명령어에서 사용합니다",
-            "arguments": [
-                "`role`: 역할 언급/역할 이름"
-            ],
-            "use": "`?setPunishRole <role>`",
-            "aliases": [
-                "`?정지_역할_설정`"
-            ]
-        },
-        "`setWelcomeChannel`": {
-            "type": "command",
-            "description": "입장시 환영 메세지를 보낼 채널을 설정합니다",
-            "arguments": [
-                "`channel`: 채널 언급/채널 이름"
-            ],
-            "use": "`?setWelcomeChannel <channel>`",
-            "aliases": []
-        },
-        "`setWelcomeMsg`": {
-            "type": "command",
-            "description": "입장시 보낼 환영 메세지를 설정합니다",
-            "arguments": [
-                "`message`: 메세지"
-            ],
-            "use": "`?setWelcomeMsg <message>`",
-            "aliases": []
-        },
-        "`setNoticeChannel`": {
-            "type": "command",
-            "description": "봇의 공지사항을 전달할 채널을 설정합니다",
-            "arguments": [
-                "`Channel`: 채널 언급/채널 ID"
-            ],
-            "use": "`?setNoticeChannel <Channel>`",
-            "aliases": [
-                "`공지채널_설정`"
-            ]
-        },
-        "`출석`": {
-            "type": "command",
+            "isDeprecated": false,
             "description": "출석체크를 합니다.\n하루에 한 번만 체크할 수 있습니다",
             "arguments": [
                 "`comment`: 출석체크를 한 뒤의 코멘트입니다"
@@ -246,8 +169,8 @@
             ]
         }
     },
-    "`guilduser`": {
-        "`info`": {
+    "guilduser": {
+        "info": {
             "type": "info",
             "description": "서버의 유저를 관리하는 카테고리입니다\n이 카테고리의 명령어는 관리자 권한이 필요합니다",
             "commandList": [
@@ -255,13 +178,12 @@
                 "`ban`", 
                 "`punish`", 
                 "`release`",
-                "`addRole`", 
-                "`rmRole`", 
                 "`warning`"
             ]
         },
-        "`kick`": {
+        "kick": {
             "type": "command",
+            "isDeprecated": false,
             "description": "대상을 서버에서 추방합니다",
             "arguments": [
                 "`target`: 유저 언급/유저 이름"
@@ -271,8 +193,9 @@
                 "`추방`"
             ]
         },
-        "`ban`": {
+        "ban": {
             "type": "command",
+            "isDeprecated": false,
             "description": "대상을 서버에서 차단합니다",
             "arguments": [
                 "`target`: 유저 언급/유저 이름"
@@ -283,8 +206,9 @@
                 "`밴`"
             ]
         },
-        "`punish`": {
+        "punish": {
             "type": "command",
+            "isDeprecated": false,
             "description": "대상을 서버에서 정지시킵니다",
             "arguments": [
                 "`target`: 유저 언급/유저 이름",
@@ -295,8 +219,9 @@
                 "`정지`"
             ]
         },
-        "`release`": {
+        "release": {
             "type": "command",
+            "isDeprecated": false,
             "description": "정지된 대상을 정지 해제합니다",
             "arguments": [
                 "`target`: 정지된 유저 언급/이름"
@@ -306,61 +231,28 @@
                 "`정지취소`"
             ]
         },
-        "`addrole`": {
+        "warning": {
             "type": "command",
-            "description": "대상에게 역할을 부여합니다",
-            "arguments": [
-                "`target`: 유저 언급/유저 이름",
-                "`role`: 역할 언급/역할 이름"
-            ],
-            "use": "`?addRole <target> <role>`",
-            "aliases": [
-                "`+role`",
-                "`+역할`"
-            ]
-        },
-        "`rmrole`": {
-            "type": "command",
-            "description": "대상의 역할을 제거합니다",
-            "arguments": [
-                "`target`: 유저 언급/유저 이름",
-                "`role`: 역할 언급/역할 이름"
-            ],
-            "use": "`?rmRole <target> <role>`",
-            "aliases": [
-                "`-role`",
-                "`-역할`"
-            ]
-        },
-        "`warning`": {
-            "type": "command",
+            "isDeprecated": false,
             "description": "경고 명령어입니다",
             "arguments": [
                 "`warning`: 대상에게 경고를 줍니다\nㅤ`target`: 경고를 줄 대상\nㅤ`amount`: 경고 횟수"
             ],
             "use": "`?warnings <warning> <target> [amount]`",
             "aliases": []
-        },
-        "`warninglist`": {
-            "type": "command",
-            "description": "경고 횟수를 확인합니다",
-            "arguments": [
-                "`target`: 경고 횟수를 확인할 대상입니다\n 기본값은 자신입니다"
-            ],
-            "use": "`?warninglist [target]",
-            "aliases": []
         }
     },
-    "`mailservice`": {
-        "`info`": {
+    "mailservice": {
+        "info": {
             "type": "info",
             "description": "메일을 관리합니다.\n **개발중** ",
             "commandList": [
                 "`mail`"
             ]
         },
-        "`mail`": {
+        "mail": {
             "type": "command",
+            "isDeprecated": false,
             "description": "메일을 관리합니다\n\nDM 전용 명령어\n\n**개발중**",
             "arguments": [
                 "✉️: 메일 목록",
@@ -374,8 +266,8 @@
             ]
         }
     },
-    "`main`": {
-        "`info`": {
+    "main": {
+        "info": {
             "type": "info",
             "description": "모듈을 관리합니다",
             "commandList": [
@@ -384,8 +276,9 @@
                 "`reload`"
             ]
         },
-        "`load`": {
+        "load": {
             "type": "command",
+            "isDeprecated": false,
             "description": "모듈을 로드합니다\n\n**개발자 전용**",
             "arguments": [
                 "`Module`: 모듈명"
@@ -395,8 +288,9 @@
                 "`+ext`"
             ]
         },
-        "`unload`": {
+        "unload": {
             "type": "command",
+            "isDeprecated": false,
             "description": "모듈을 언로드합니다\n\n**개발자 전용**",
             "arguments": [
                 "`Module`: 모듈명"
@@ -407,8 +301,9 @@
                 "`uload`"
             ]
         },
-        "`reload`": {
+        "reload": {
             "type": "command",
+            "isDeprecated": false,
             "description": "모든 모듈을 다시 로드합니다\n\n**개발자 전용**",
             "arguments": [
                 "`Category`: 다시 로드할 카테고리"
@@ -417,8 +312,8 @@
             "aliases": []
         }
     },
-    "`others`": {
-        "`info`": {
+    "others": {
+        "info": {
             "type": "info",
             "description": "잡다한 명령어 카테고리입니다",
             "commandList": [
@@ -426,8 +321,9 @@
                 "`echo`"
             ]
         },
-        "`vote`": {
+        "vote": {
             "type": "command",
+            "isDeprecated": false,
             "description": "투표를 시작합니다",
             "arguments": [
                 "`Items`: 투표 항목 (2~10개)",
@@ -438,48 +334,51 @@
                 "`투표`"
             ]
         },
-        "`echo`": {
+        "echo": {
             "type": "command",
+            "isDeprecated": false,
             "description": "명령어 뒤에 나온 말을 똑같이 따라합니다",
             "arguments": [
-                "`Anything: 따라할 아무 말`"
+                "`Any: 따라할 아무 말`"
             ],
-            "use": "`?echo Anything`",
+            "use": "`?echo <Any>`",
             "aliases": [
                 "`따라하기`",
                 "`말하기`"
             ]
         }
     },
-    "`user`": {
-        "`info`": {
+    "user": {
+        "info": {
             "type": "info",
             "description": "유저에 관련된 명령어 카테고리입니다",
             "commandList": [
-                "`profile`", 
-                "`EditProfile`"
+                "`EditProfile`",
+                "`profile`",
+                "`유저등록`"
+            ]
+        }
+    },
+    "get": {
+        "info": {
+            "type": "info",
+            "description": "정보를 가져오는 카테고리입니다",
+            "commandList": [
+                "`get`"
             ]
         },
-        "`profile`": {
+        "get": {
             "type": "command",
-            "description": "멘션한 유저/자신의 프로필을 봅니다",
+            "isDeprecated": false,
+            "description": "대상의 정보를 가져옵니다",
             "arguments": [
-                "`User`: 유저 언급/유저 이름"
+                "`Category`: 가져올 정보의 카테고리\n\n카테고리 목록\n`Bot`\n`User`\n`Member`\n------------------------------",
+                "`SubCategory`: 하위 카테고리\n\n`Bot/Version`: 현재 버전\n`Bot/ChangeLog`: 최근 변경사항\n`Bot/Info`: 자세한 상태\n\n`Member/Warning`: 누적 경고 횟수\n\n`User/Profile`: 사용자 프로필"
             ],
-            "use": "`?profile <User>`",
+            "use": "`?get <Category> <SubCategory>`",
             "aliases": [
-                "`프로필`"
-            ]
-        },
-        "`?EditProfile`": {
-            "type": "command",
-            "description": "자신의 프로필을 수정합니다",
-            "arguments": [
-                "`Msg`: 프로필 소개 메세지"
-            ],
-            "use": "`?EditProfile <Msg>`",
-            "aliases": [
-                "`프로필수정`"
+                "`Get`",
+                "`확인`"
             ]
         }
     }

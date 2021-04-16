@@ -3,10 +3,12 @@
 
 import discord
 from discord.ext import commands
-import Log
 
 import ConsoleColors as CC
+import SimpleJSON
 import json
+import datetime
+import Logger
 
 client = commands.Bot(
     command_prefix="?",
@@ -29,10 +31,14 @@ Modules = [
     # "slashTest"
 ]
 
-adminID = (
-    434549321216688128, # 샤프#8720
-    480977114980417538, # 잠ㅅ갊#3497 
-)
+CONFIG = SimpleJSON.Read("./Data/Config.json")
+
+# adminID = (
+#     434549321216688128, # 샤프#8720
+#     480977114980417538, # 잠ㅅ갊#3497 
+# )
+
+adminID = CONFIG["DevList"]
 
 Path    = "/DaeGal/Data"
 LogPath = f"{Path}/Log"
@@ -47,6 +53,7 @@ class Main(commands.Cog):
     @commands.Cog.listener()
     async def on_ready(self):
         print(f"{CC.BG_RGB(0, 200, 0)} Logged in as {self.client.user} {CC.EFCT.CLEAR}")
+        Logger.write("INFO", f"Bot is online", open("./Data/Log/log.log", "a"))
         print("--------------------------------------------------")
 
     @commands.command(name="load", aliases=["+ext"], hidden=True)
@@ -140,19 +147,21 @@ class Main(commands.Cog):
                 json.dump(Config.update({"disabledCategory": list(category)}))
                 await ctx.send("완료")
 
+def setup(client):
+    client.add_cog(Main(client))
+
 if __name__ == "__main__":
     try:
         client.remove_command("help")
         client.remove_cog("help")
+
         client.add_cog(Main(client))
 
         for Module in Modules:
             client.load_extension(Module)
             print(f"Loaded Module: {Module}")
         print("--------------------------------------------------")
-        with open("/DaeGal/Token/Token", "r") as Token:
+        with open("./Token/Token", "r") as Token:
             client.run(Token.read())
-    except KeyboardInterrupt:
-        pass
-    # except Exception as E:
-        # print(f"{CC.BG.RED} E: {E} {CC.EFCT.CLEAR}")
+    except KeyboardInterrupt: Logger.write("INFO" , "Terminated", open("./Data/Log/log.log", "a"))
+    except Exception as E:    Logger.write("ERROR",  E,           open("./Data/Log/log.log", "a"))

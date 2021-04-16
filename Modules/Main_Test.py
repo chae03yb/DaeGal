@@ -84,11 +84,6 @@ class Main(commands.Cog):
         except Exception as E:
             await ctx.send(E)
 
-    @commands.command(name="currentMainVer")
-    @commands.check(isOwner)
-    async def currentMainVer(self, ctx: commands.Context):
-        await ctx.send("VER: TEST")
-
 if __name__ == "__main__":
     try:
         client.remove_command("help")
