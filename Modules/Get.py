@@ -50,12 +50,12 @@ class Get(commands.Cog):
         await ctx.send(embed=Embed)
     
     @BotGet.command(name="ChangeLog", aliases=["변경사항", "changelog"])
-    async def changelog(self, ctx:commands.Context, version="Lastest"):
+    async def changelog(self, ctx:commands.Context, version="Latest"):
         BotConfig = "/DaeGal/Data/Config.json"
         LogPath   = ""
         versionName = SimpleJSON.Read(Path=BotConfig)["version"]
 
-        if version == "Lastest":
+        if version == "Latest":
             LogPath += f"{Path}/Bot/ChangeLog/{versionName}.md"
         else:
             LogPath += f"{Path}/Bot/ChangeLog/{version}.md"
@@ -66,7 +66,7 @@ class Get(commands.Cog):
                 embed = discord.Embed(
                     title=f"변경 사항\n버전: {version} ",
                     description=f"```md\n" \
-                                f"{Content}\n"\
+                                f"{Content}\n" \
                                 f"```",
                     color=0xFFFF33
                 )
@@ -90,7 +90,7 @@ class Get(commands.Cog):
         Embed.add_field(name="로드된 모듈", value=f"{chr(0x0A).join(Main.Modules)}", inline=True)
         # Embed.add_field(name="로그인 횟수", value=f"{SimpleJSON.Read(Path=f'{Path}/Config.json')['loginCount']} 회", inline=True)
 
-        Embed.set_thumbnail(url=r"https://cdn.discordapp.com/avatars/736998050383396996/230e8c6ba4eceea86014c417116b936b.webp?size=128")
+        Embed.set_thumbnail(url=r"https://cdn.discordapp.com/avatars/736998050383396996/ca806a6a4c1fcec5b6d0c0f3a43ad041.png?size=128")
         await ctx.send(embed=Embed)
 
     @GeneralGet.group(name="User", aliases=["유저", "사용자"])
