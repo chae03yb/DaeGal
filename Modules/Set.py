@@ -203,14 +203,79 @@ class Set(commands.Cog):
     @commands.has_permissions(administrator=True)
     @commands.bot_has_guild_permissions(administrator=True)
     async def setWelcomeChannel(self, ctx:commands.Context, channel:discord.TextChannel=None, *, welcomemsg=None):
-        pass
+        Config: dict = None
+        ConfigPath = f"{Path}/Guild/{ctx.guild.id}/GuildConfig.json"
+
+        try:
+            SimpleJSON.Read(ConfigPath)["Channel"]
+        except FileNotFoundError:
+            SimpleJSON.Write(ConfigPath, {"Channel":{}})
+        except KeyError:
+            tmpData = SimpleJSON.Read(f"{Path}/Guild/{ctx.guild.id}/GuildConfig.json")
+            tmpData.update({"Channel": {}})
+            SimpleJSON.Write(ConfigPath, tmpData)
+        finally:
+            Config = SimpleJSON.Read(ConfigPath)
+
+        if channel is None: 
+            try:
+                del Config["Channel"]["Welcome"]
+            except KeyError:
+                await ctx.send(embed=discord.Embed(
+                    title="오류",
+                    description="입장 채널이 설정되지 않았습니다",
+                    color=0xFF0000
+                ))
+            else:
+                SimpleJSON.Write(ConfigPath, Config)
+                await ctx.send(embed=discord.Embed(
+                    title="성공",
+                    description="입장 채널을 설정에서 삭제했습니다",
+                    color=0x00FF00
+                ))
+        else:
+            Config["Channel"].update({ "Welcome": channel.id })
+            SimpleJSON.Write(ConfigPath, Config)
+
+            await ctx.send(embed=discord.Embed(
+                title="성공",
+                description=f"입장 채널을 {channel.name} 으로 지정하였습니다",
+                color=0x00FF00
+            ))
 
     @guildChannelSet.command(name="Notice")
     @commands.guild_only()
     @commands.has_permissions(administrator=True)
     @commands.bot_has_guild_permissions(administrator=True)
     async def setNoticeChannel(self, ctx:commands.Context, channel:discord.TextChannel=None):
-        pass
+        ConfigPath = f"{Path}/Bot/NoticeChannel.json"
+        Config: dict = SimpleJSON.Read(ConfigPath)
+
+        if channel is None: 
+            try:
+                del Config[f"{ctx.guild.id}"]
+            except KeyError:
+                await ctx.send(embed=discord.Embed(
+                    title="오류",
+                    description="봇 공지 채널이 설정되지 않았습니다",
+                    color=0xFF0000
+                ))
+            else:
+                SimpleJSON.Write(ConfigPath, Config)
+                await ctx.send(embed=discord.Embed(
+                    title="성공",
+                    description="봇 공지 채널을 설정에서 삭제했습니다",
+                    color=0x00FF00
+                ))
+        else:
+            Config.update({ f"{ctx.guild.id}": channel.id })
+            SimpleJSON.Write(ConfigPath, Config)
+
+            await ctx.send(embed=discord.Embed(
+                title="성공",
+                description=f"봇 공지 채널을 {channel.name} 으로 지정하였습니다",
+                color=0x00FF00
+            ))
 
     ############################################
     #                   User                   #
