@@ -105,33 +105,24 @@ class Get(commands.Cog):
 
     @UserGet.command(name="Profile", aliases=["프로필", "profile"])
     async def profile(self, ctx:commands.Context, target:discord.User=None):
-        Data = SimpleJSON.Read(Path=f"{Path}/User/UserDataList.json")
         if target is None:
             target = ctx.author
         try:
-            if target is None:
-                Embed = discord.Embed(
-                    title="프로필",
-                    description=Data[f"{ctx.author.id}"]["ProfileComment"],
-                    color=0xAACCFF
-                )
-                Embed.set_thumbnail(url=ctx.author.avatar_url)
-                await ctx.send(embed=Embed)
-            else:
-                Embed = discord.Embed(
-                    title="프로필",
-                    description=f"```{Data[f'{target.id}']['ProfileComment']}```",
-                    color=0xAACCFF
-                )
-                Embed.set_thumbnail(url=target.avatar_url)
-                await ctx.send(embed=Embed)
-
-        except KeyError:
+            Data = SimpleJSON.Read(Path=f"{Path}/User/{target.id}.json")
             Embed = discord.Embed(
-                title=f"{target.id}님의 프로필",
+                title=f"{target}님의 프로필",
+                description=f"```{Data['comment']}```",
+                color=0xAACCFF
+            )
+            Embed.set_thumbnail(url=target.avatar_url)
+            await ctx.send(embed=Embed)
+        except (KeyError, FileNotFoundError):
+            Embed = discord.Embed(
+                title=f"{target}님의 프로필",
                 description="** **",
                 color=0xAACCFF
             )
+            Embed.set_thumbnail(url=target.avatar_url)
             await ctx.send(embed=Embed)
 
     @GeneralGet.group(name="Member", aliases=["멤버", "member"])

@@ -38,13 +38,16 @@ CONFIG = SimpleJSON.Read("./Data/Config.json")
 #     480977114980417538, # 잠ㅅ갊#3497 
 # )
 
-adminID = CONFIG["DevList"]
+adminID = tuple(CONFIG["DevList"])
 
 Path    = "/DaeGal/Data"
 LogPath = f"{Path}/Log"
 
 def isOwner(ctx):
     return ctx.author.id in adminID
+
+# def isDisabledCommand(ctx:commands.Context):
+#     return ctx.command.name in SimpleJSON.Read(f"{Path}/Guild/{ctx.guild.id}/GuildConfig.json")["DisabledCommand"]
 
 class Main(commands.Cog):
     def __init__(self, client):

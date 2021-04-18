@@ -6,16 +6,7 @@ class Others(commands.Cog):
     def __init__(self, client):
         self.client = client
 
-    # @commands.Cog.listener(name="on_message")
-    async def HookCollector(self, ctx: discord.Message):
-        if ctx.content == "?":
-            UserList = []
-            Count = 0
-            # while Count == 3:
-            UserList.append(str(ctx.author.id))
-            await ctx.channel.send(" ".join(UserList))
-
-    @commands.command(name = "vote", aliases = ["투표"])
+    # @commands.command(name = "vote", aliases = ["투표"])
     async def makeVote(self, ctx: commands.Context, itemAmount: int, *, description = None):
         itemList = ["1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣", "🔟"]
         waitTime = 5.0
@@ -66,16 +57,8 @@ class Others(commands.Cog):
         asyncio.sleep()
 
     @commands.command(name="echo", aliases=["따라하기", "말하기"])
-    async def echo(self, ctx:commands.Context, *args):
-        if args == ():
-            Embed = discord.Embed(
-                title="오류",
-                description="문장이 필요합니다",
-                color=0xFF0000
-            )
-            await ctx.send(embed=Embed)
-        else:
-            await ctx.send(f"{ctx.author.mention}: {' '.join(args)}")
+    async def echo(self, ctx:commands.Context, *, args):
+        await ctx.reply(args)
 
 def setup(client):
     client.add_cog(Others(client))

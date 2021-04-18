@@ -13,29 +13,62 @@ class Game(commands.Cog):
     
     @commands.command(name="random", aliases=["랜덤"])
     async def RandomNumberGenerator(self, ctx: commands.Context, Min=None, Max=None):
+        random.seed()
         if Min is None:
-            await ctx.send("시작 값을 입력해주세요.")
+            await ctx.send(embed=discord.Embed(
+                title="오류",
+                description="최솟값을 입력해주세요",
+                color=0xFF0000
+            ))
         elif Max is None:
-            await ctx.send("끝 값을 입력해주세요.")
+            await ctx.send(embed=discord.Embed(
+                title="오류",
+                description="최댓값을 입력해주세요",
+                color=0xFF0000
+            ))
         elif Min > Max:
-            await ctx.send("시작 값은 끝 값보다 클 수 없습니다.")
+            await ctx.send(embed=discord.Embed(
+                title="오류",
+                description="최솟값이 최댓값보다 클 수 없습니다",
+                color=0xFF0000
+            ))
         else:
             try:
-                RandomResult = random.randint(int(Min), int(Max))
-                await ctx.send(f"{ctx.author}: `{RandomResult}` 입니다.")
+                await ctx.reply(embed=discord.Embed(
+                    title="결과",
+                    description=f"🎲 {random.randint(int(Min), int(Max))}",
+                    color=0xFFFF00
+                ))
             except ValueError:
-                await ctx.send("시작 값/끝 값을 정수로 입력해주세요.")
+                await ctx.send(embed=discord.Embed(
+                    title="오류",
+                    description="최솟값/최댓값은 정수만 가능합니다",
+                    color=0xFF0000
+                ))
 
     @commands.command(name="dice", aliases=["주사위"])
     async def dice(self, ctx: commands.Context):
-        await ctx.send(f"주사위: {random.randint(1, 6)}")
+        random.seed()
+        await ctx.reply(embed=discord.Embed(
+            title="결과",
+            description=f"🎲 {random.randint(1, 6)}",
+            color=0xFFFF00
+        ))
 
     @commands.command(name="choice", aliases=["선택"])
     async def choice(self, ctx: commands.Context, *contents):
+        random.seed()
         if bool(contents) is False:
-            await ctx.send("선택할 항목들을 1개 이상 넣어주세요.")
+            await ctx.send(embed=discord.Embed(
+                title="오류",
+                description="선택할 항목이 1개 이상 필요합니다",
+                color=0xFF0000
+            ))
         else:
-            await ctx.send(f"{ctx.author.mention}, {random.choice(contents)}이(가) 좋겠네요")
+            await ctx.send(embed=discord.Embed(
+                description=f"선택할 항목들: `{'`, `'.join(contents)}`\n\n결과: `{random.choice(contents)}`",
+                color=0xFFFF00
+            ))
     
     # @commands.command(name="조커뽑기")
     async def joker(self, ctx: commands.Context):

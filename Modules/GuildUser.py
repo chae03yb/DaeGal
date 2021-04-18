@@ -4,6 +4,7 @@ from discord.utils import get
 import asyncio
 import json
 import os
+
 import Main
 import ConsoleColors as CC
 import SimpleJSON
@@ -139,10 +140,10 @@ class GuildUser(commands.Cog):
         if auto == True: await ctx.channel.send("정지가 끝났습니다.")
         elif auto == False: await ctx.channel.send("정지가 취소되었습니다.")
 
-    @commands.command(name="warning")
+    @commands.command(name="warning", aliases=["경고"])
     @commands.has_permissions(administrator=True)
     @commands.guild_only()
-    async def warning(self, ctx:commands.Context, target:discord.Member=None, amount:int=1, *, comment):
+    async def warning(self, ctx:commands.Context, target:discord.Member=None, amount:int=1, *, reason:str=None):
         wpath: str = f"{Path}/{ctx.guild.id}/Members/WarningList.json"
 
         if target is None:
@@ -153,107 +154,57 @@ class GuildUser(commands.Cog):
             )
             await ctx.send(embed=Embed)
         else:
-            async def giveWarn():
-                wcount: int = SimpleJSON.Read(wpath)[f"{target.id}"] + amount
-                wdata: dict = SimpleJSON.Read(wpath)
-                
-                wdata.update({ f"{ctx.author.id}": wcount })
-            
-                SimpleJSON.Write(wdata)
-                Embed = None
-
-                if comment is None: Embed = discord.Embed( title="성공", color=0xFF0000 )
-                else:               Embed = discord.Embed( title="성공", color=0xFF0000, description=f"경고 사유: {comment}" )
-                await ctx.send(embed=Embed)
-            
-
+            wdata: dict = None
             try:
-                await giveWarn() 
+                wdata = SimpleJSON.Read(wpath)
+                if f"{target.id}" not in wdata.keys():
+                    wdata.update({ f"{target.id}": 0 })
+                    SimpleJSON.Write(Path=wpath, Object=wdata)
             except FileNotFoundError:
-                os.makedirs(f"{Path}/{ctx.guild.id}/Members/")
-                SimpleJSON.Write(wpath, {})
-                await giveWarn()
+                SimpleJSON.Write(wpath, { f"{target.id}": 0 })
             except Exception as E:
                 await ctx.send(embed=discord.Embed(
                     title="오류",
-                    description=f"```{E}```",
+                    description=f"```E: {E}```",
                     color=0xFF0000
                 ))
+            finally:
+                wdata = SimpleJSON.Read(wpath)
+                wdata[f"{target.id}"] += amount
+                SimpleJSON.Write(Path=wpath, Object=wdata)
 
+                Embed: discord.Embed = None
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-            """async def giveWarning():
-                WarningList = SimpleJSON.Read(Path=wPath)
-
-                try:
-                    WarningList[f"{target.id}"] += amount
-                except KeyError:
-                    WarningList.update({f"{target.id}":amount})
-                    SimpleJSON.Write(wPath, WarningList)
-
-                try:
-                    try:
-                        Config = SimpleJSON.Read(Path=f"{Path}/{ctx.guild.id}/GuildConfig.json")["Punish"]
-
-                        WarningLimit      = Config["WarningLimit"]
-                        DefaultPunishTime = Config["DefaultPunishTime"]
-
-                        WarningList[f"{target.id}"] -= WarningLimit
-                        if (WarningList[f"{target.id}"] >= WarningLimit) and Config["AutoPunish"]:
-                            await self.punish(ctx=ctx, target=target, time=DefaultPunishTime)
-                    except KeyError:
-                        Config = SimpleJSON.Read(Path=f"{Path}/{ctx.guild.id}/GuildConfig.json")
-                        Config.update({
-                            "Punish": {
-                                "Auto": False,
-                                "WarningLimit": 3,
-                                "DefaultTime": 24
-                            }
-                        })
-                except FileNotFoundError:
-                    pass
-                else:
-                    Embed = discord.Embed(
-                        title="성공",
-                        description=f"{target.name}에게 경고 {amount} 개를 주었습니다.",
-                        color=0x00FF00
-                    )
-                    await ctx.send(embed=Embed)
-
-            try:
-                await giveWarning()
-            except FileNotFoundError:
-                SimpleJSON.Write(Path=wPath, Object={})
-                await giveWarning()"""
+                if reason is None: Embed = discord.Embed( title="성공", color=0xFF0000 ) \
+                    .set_footer(text=f"현재 경고 횟수: {wdata[f'{target.id}']}회")
+                else:               Embed = discord.Embed( title="성공", color=0xFF0000, description=f"경고 사유: {reason}" ) \
+                    .set_footer(text=f"현재 경고 횟수: {wdata[f'{target.id}']}회")
+                await ctx.send(embed=Embed)
      
-    @commands.command(name="warninglist")
+    @commands.command(name="warninglist", aliases=["wl"])
+    @commands.guild_only()
     async def warninglist(self, ctx: commands.Context, target: discord.Member=None):
         try:
-            if target is None:
-                target = ctx.author
-            with open(F"{Path}/{ctx.guild.id}/Members/WarningList.json", 'r', encoding="utf-8") as List:
-                try:
-                    jsonData = json.load(List)
-                    userWarningCount = jsonData[str(target.id)]
-                    Embed=discord.Embed(title="경고 목록", description=f"사용자: {target}", color=0xFF0000)
-                    Embed.add_field(name="경고 횟수", value=userWarningCount)
-                    await ctx.send(embed=Embed)
-                except KeyError:
-                    return await ctx.send("당신은 아직 경고를 받지 않았습니다.")
+            if target is None: target = ctx.author
+            try:
+                warncount = SimpleJSON.Read(f"{Path}/{ctx.guild.id}/Members/WarningList.json")[f"{target.id}"]
+                Embed = discord.Embed(
+                    title="경고 목록", 
+                    description=f"사용자: {target}", 
+                    color=0xFF0000
+                ) \
+                .add_field(name="경고 횟수", value=warncount)
+                await ctx.send(embed=Embed)
+            except KeyError:
+                return await ctx.send(embed=discord.Embed(
+                    description="당신은 아직 경고를 받지 않았습니다",
+                    color=0x00FF00
+                ))
         except FileNotFoundError:
-            return await ctx.send("이 서버에는 아직 경고를 받은 사람이 없습니다.")
+            return await ctx.send(embed=discord.Embed(
+                description="이 서버에 경고를 받은 사용자가 없습니다",
+                color=0x00FF00
+            ))
     
 def setup(client):
     client.add_cog(GuildUser(client))

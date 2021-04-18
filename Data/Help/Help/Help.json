@@ -234,12 +234,28 @@
         "warning": {
             "type": "command",
             "isDeprecated": false,
-            "description": "경고 명령어입니다",
+            "description": "대상에게 경고를 줍니다",
             "arguments": [
-                "`warning`: 대상에게 경고를 줍니다\nㅤ`target`: 경고를 줄 대상\nㅤ`amount`: 경고 횟수"
+                "`target`: 경고를 줄 대상",
+                "`amount`: 경고 횟수, 기본값은 1",
+                "`reason`: 경고 사유, 사용 시 `amount` 칸을 명시해야 합니다"
             ],
-            "use": "`?warnings <warning> <target> [amount]`",
-            "aliases": []
+            "use": "`?warnings <target> [amount] [reason]`",
+            "aliases": [
+                "`경고`"
+            ]
+        },
+        "warninglist": {
+            "type": "command",
+            "isDeprecated": false,
+            "description": "대상의 누적 경고횟수를 조회합니다",
+            "arguments": [
+                "`target`: 조회할 대상, 기본값은 명령어 사용자"
+            ],
+            "use": "`?warninglist [target]`",
+            "aliases": [
+                "`wl`"
+            ]
         }
     },
     "mailservice": {
@@ -321,19 +337,6 @@
                 "`echo`"
             ]
         },
-        "vote": {
-            "type": "command",
-            "isDeprecated": false,
-            "description": "투표를 시작합니다",
-            "arguments": [
-                "`Items`: 투표 항목 (2~10개)",
-                "`Description`: 투표 설명"
-            ],
-            "use": "`?vote <Items> <Description>`",
-            "aliases": [
-                "`투표`"
-            ]
-        },
         "echo": {
             "type": "command",
             "isDeprecated": false,
@@ -379,6 +382,28 @@
             "aliases": [
                 "`Get`",
                 "`확인`"
+            ]
+        }
+    },
+    "set": {
+        "info": {
+            "type": "info",
+            "description": "항목을 설정하는 카테고리입니다",
+            "commandList": [
+                "`set`"
+            ]
+        },
+        "set": {
+            "type": "command",
+            "isDeprecated": false,
+            "description": "항목을 설정합니다",
+            "arguments": [
+                "`Category`: 설정할 카테고리\n\n카테고리 목록\n`Guild`\n`User`\n------------------------------",
+                "`SubCategory`: 하위 카테고리, 비워둘 경우 제거합니다\n\n`Guild/Role/`: 서버 역할 설정\n- `Guild/Role/Member`: 멤버 역할\n- `Guild/Role/Bot`: 봇 역할\n- `Guild/Role/Punish`: 징벌 역할\n\n`Guild/Channel/`: 서버 채널 설정\n- `Guild/Channel/Welcome`: 입장 채널\n- `Guild/Channel/Notice`: 봇 공지 채널\n\n`User/`: 유저 설정\n`User/Profile`: 유저 프로필"
+            ],
+            "use": "`?get <Category> <SubCategory>`",
+            "aliases": [
+
             ]
         }
     }

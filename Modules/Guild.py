@@ -33,10 +33,9 @@ class Guild(commands.Cog):
                     description=File.read()
                 )
             try:
-                with open(f"{Path}/{member.guild.id}/GuildConfig.json", "r") as File:
-                    await member.guild.get_channel(json.load(fp=File)["Channel"]["WelcomeChannel"]).send(embed=Embed)
-            except Exception:
-                return
+                channel = SimpleJSON.Read(f"{Path}/{member.guild.id}/GuildConfig.json")["Channel"]["WelcomeChannel"]
+                await member.guild.get_channel(channel).send(embed=Embed)
+            except Exception: return
         except FileNotFoundError:
             return
 
