@@ -1,10 +1,13 @@
 import discord
 import discord.utils
 from discord.ext import commands
+
 import os
+import sys
 import json
 import ConsoleColors as CC
 import Main
+import io
 #from Log import writeLog
 
 Path = "/DaeGal/Data/Guild"
@@ -39,7 +42,7 @@ class Bot(commands.Cog):
                 title="오류",
                 description=f"{E}",
                 color=0xFF0000
-                )
+            )
             await ctx.send(embed=errEmbed)
 
     @commands.Cog.listener(name="on_ready")
@@ -104,6 +107,31 @@ class Bot(commands.Cog):
         with open(f"./Data/Log/log.log", "r") as Log:
             print(Log.readlines()[-lines:])
             await ctx.send(Log.readlines()[-lines:])
+
+    @commands.check(Main.isOwner)
+    @commands.command(name="eval")
+    async def evaluate(self, ctx:commands.Context, *, script:str=None):
+        if script is None:
+            return await ctx.send(
+                title="오류",
+                description="파이썬 스크립트가 필요합니다",
+                color=0xFF0000
+            )
+        if script.startswith("```py") or script.startswith("```python"):
+            script = script.strip("```").lstrip("py").lstrip("python").lstrip("\n")
+        
+        stdout     = sys.stdout
+        sys.stdout = mystdout = io.StringIO()
+
+        exec(script)
+
+        sys.stdout = stdout
+
+        await ctx.send(embed=discord.Embed(
+            title="결과",
+            description=f"```{mystdout.getvalue()}```",
+            color=0x00FF00
+        ))
 
 def setup(client):
     client.add_cog(Bot(client))

@@ -95,50 +95,69 @@ class GuildUser(commands.Cog):
     @commands.command(name="punish", aliases=["정지"])
     @commands.has_permissions(administrator=True)
     @commands.guild_only()
-    async def punish(self, ctx: commands.Context, target: discord.Member=None, time: float=0):
-        # return await ctx.send("현재 사용할 수 없습니다.")
-        PunishRole  = None
-        DefaultRole = None
+    async def punish(self, ctx:commands.Context, target:discord.Member=None, time:float=0):
         if target is None:
-            await ctx.send("대상이 필요합니다.")
-            return
-        if time == 0:
-            await ctx.send("정지 시간이 필요합니다.")
-            return
-        if "PunishRole.json" not in os.listdir(f"{Path}/{ctx.guild.id}/Role"):
-            await ctx.send("정지 역할을 설정해야 합니다.")
-            return
-        if "DefaultRole.json" not in os.listdir(f"{Path}/{ctx.guild.id}/Role"):
-            await ctx.send("기본 역할을 설정해야 합니다.")
-            return
-        elif "PunishConfig.json" is os.listdir(F"{Path}/{ctx.guild.id}/"):
-            Config = json.load(fp=open(F"{Path}/{ctx.guild.id}/PunishConfig.json", "r"))
-        if "DefaultRole.json" not in os.listdir(F"{Path}/{ctx.guild.id}/Role") and "PunishRole.json" not in os.listdir(F"{Path}/{ctx.guild.id}/Roles"):
-            return await ctx.send("기본 역할과 정지 역할을 설정하지 않았습니다.")
+            return await ctx.send(embed=discord.Embed(
+                title="오류",
+                description="대상이 필요합니다",
+                color=0xFF0000
+            ))
+        elif time <= 0:
+            return await ctx.send(embed=discord.Embed(
+                title="오류",
+                description="올바른 시간을 설정해주세요",
+                color=0xFF0000
+            ))
         else:
-            PunishRole  = json.load(fp=open(f"{Path}/{ctx.guild.id}/Role/PunishRole.json", "r"))["roleID"]
-            DefaultRole = json.load(fp=open(f"{Path}/{ctx.guild.id}/Role/DefaultRole.json", "r"))["roleID"]
-            async def Start(ctx: commands.Context):
-                await target.add_roles(discord.utils.get(ctx.guild.roles, id=PunishRole))
-                await target.remove_roles(discord.utils.get(ctx.guild.roles, id=DefaultRole))
-                await asyncio.sleep(time * ONE_HOUR)
-                await ctx.send("대상을 정지했습니다.")
-            await Start(ctx)
-            await asyncio.sleep(time)
-            await self.release(ctx=ctx, target=target, auto=True)
+            try:
+                SimpleJSON.Read(f"{Path}/Guild/{ctx.guild.id}/GuildConfig.json")["Role"]["Punish"]
+                SimpleJSON.Read(f"{Path}/Guild/{ctx.guild.id}/GuildConfig.json")["Role"]["Member"]
+            except FileNotFoundError:
+                return await ctx.send(embed=discord.Embed(
+                    title="오류",
+                    description="역할을 설정해야 합니다",
+                    color=0xFF0000
+                ))
+            except KeyError:
+                return await ctx.send(embed=discord.Embed(
+                    title="오류",
+                    description="필요한 역할중 하나가 설정되지 않았습니다",
+                    color=0xFF0000
+                ) \
+                .add_field(name="필요한 역할 목록", value="`정지` 역할, `멤버` 역할"))
+            else:
+                PunishRole: int = SimpleJSON.Read(f"{Path}/Guild/{ctx.guild.id}/GuildConfig.json")["Role"]["Punish"]
+                MemberRole: int = SimpleJSON.Read(f"{Path}/Guild/{ctx.guild.id}/GuildConfig.json")["Role"]["Member"]
+
+                async def Start(ctx:commands.Context):
+                    await target.add_roles(discord.utils.get(ctx.guild.roles, id=PunishRole))
+                    await target.remove_roles(discord.utils.get(ctx.guild.roles, id=MemberRole))
+                    await ctx.send(embed=discord.Embed(
+                        description=f"{time} 시간동안 유저를 정지합니다",
+                        color=0xFF0000
+                    ))
+                    await asyncio.sleep(time * ONE_HOUR)
+
+                await Start(ctx)
+                await asyncio.sleep(time)
+                await self.release(ctx=ctx, target=target, auto=True)
 
     @commands.command(name="release", aliases=["정지취소"])
     @commands.has_permissions(administrator=True)
     @commands.guild_only()
     async def release(self, ctx: commands.Context, target: discord.Member, auto:bool=False):
-        with open(f"{Path}/{ctx.guild.id}/GuildConfig.json", "r") as punishRole:
-            PunishRole  = json.load(fp=punishRole)["Role"]["PunishRole"]
-        with open(f"{Path}/{ctx.guild.id}/GuildConfig.json", "r") as defaultRole:
-            DefaultRole = json.load(fp=defaultRole)["Role"]["MemberRole"]
-        await target.add_roles(discord.utils.get(ctx.guild.roles, id=DefaultRole))
-        await target.remove_roles(discord.utils.get(ctx.guild.roles, id=PunishRole))
-        if auto == True: await ctx.channel.send("정지가 끝났습니다.")
-        elif auto == False: await ctx.channel.send("정지가 취소되었습니다.")
+        guildconfig: str = SimpleJSON.Read(f"{Path}/Guild/{ctx.guild.id}/GuildConfig.json")
+        punishrole: int  = guildconfig["Role"]["Punish"]
+        memberrole: int  = guildconfig["Role"]["Member"]
+
+        await target.add_roles(discord.utils.get(ctx.guild.roles, id=memberrole))
+        await target.remove_roles(discord.utils.get(ctx.guild.roles, id=punishrole))
+
+        await ctx.send(embed=discord.Embed(
+            title="알림",
+            description="정지가 끝났습니다",
+            color=0x00FF00
+        ))
 
     @commands.command(name="warning", aliases=["경고"])
     @commands.has_permissions(administrator=True)
@@ -179,6 +198,10 @@ class GuildUser(commands.Cog):
                     .set_footer(text=f"현재 경고 횟수: {wdata[f'{target.id}']}회")
                 else:               Embed = discord.Embed( title="성공", color=0xFF0000, description=f"경고 사유: {reason}" ) \
                     .set_footer(text=f"현재 경고 횟수: {wdata[f'{target.id}']}회")
+
+                Embed.add_field(name="대상", value=target.mention)
+
+                await ctx.message.delete()
                 await ctx.send(embed=Embed)
      
     @commands.command(name="warninglist", aliases=["wl"])

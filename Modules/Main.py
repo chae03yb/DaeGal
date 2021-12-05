@@ -7,7 +7,6 @@ from discord.ext import commands
 import ConsoleColors as CC
 import SimpleJSON
 import json
-import datetime
 import Logger
 
 client = commands.Bot(
@@ -17,18 +16,15 @@ client = commands.Bot(
 
 Modules = [
     "Bot",
-    # "Commands",
-    # "CustomCommands",
     "Docs",
     "ErrorHandler",
     "Game",
     "Guild",
     "GuildUser",
-    # "MailService",
-    # "MusicTest",
     "Others",
     "User",
-    # "slashTest"
+    "Get",
+    "Set"
 ]
 
 CONFIG = SimpleJSON.Read("./Data/Config.json")
@@ -43,7 +39,7 @@ adminID = tuple(CONFIG["DevList"])
 Path    = "/DaeGal/Data"
 LogPath = f"{Path}/Log"
 
-def isOwner(ctx):
+def isOwner(ctx: commands.Context) -> bool:
     return ctx.author.id in adminID
 
 # def isDisabledCommand(ctx:commands.Context):

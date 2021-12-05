@@ -15,29 +15,24 @@ class Guild(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_join(self, member: discord.Member):
-        Role = SimpleJSON.Read(f"{Path}/{member.guild.id}/GuildConfig.json")["Role"]
+        GuildConfigPath = f"{Path}/{member.guild.id}/GuildConfig.json"
         try:
             if not member.bot:
-                await member.add_roles(utils.get(member.guild.roles, id=Role["MemberRole"]), atomic=True)
-            if member.bot:
-                await member.add_roles(utils.get(member.guild.roles, id=Role["BotRole"]), atomic=True)
+                SimpleJSON.Read(GuildConfigPath)["Role"]["Member"]
+            else:
+                SimpleJSON.Read(GuildConfigPath)["Role"]["Bot"]
         except (FileNotFoundError, KeyError):
-            pass
-
-        try:
-            Embed = None
-            with open(f"{Path}/{member.guild.id}/Welcome/Message", "r") as File:
-                Embed = discord.Embed(
-                    color=0x000000,
-                    title="환영합니다",
-                    description=File.read()
-                )
-            try:
-                channel = SimpleJSON.Read(f"{Path}/{member.guild.id}/GuildConfig.json")["Channel"]["WelcomeChannel"]
-                await member.guild.get_channel(channel).send(embed=Embed)
-            except Exception: return
-        except FileNotFoundError:
             return
+        else:
+            Config = SimpleJSON.Read(GuildConfigPath)
+
+            try:
+                if not member.bot:
+                    await member.add_roles(utils.get(member.guild.roles, id=Config["Role"]["Member"]), atomic=True)
+                else:
+                    await member.add_roles(utils.get(member.guild.roles, id=Config["Role"]["Bot"]), atomic=True)
+            except discord.errors.Forbidden:
+                return
 
     @commands.Cog.listener(name="on_guild_join")
     async def onGuildJoin(self, guild: discord.Guild):
@@ -131,17 +126,27 @@ class Guild(commands.Cog):
     @commands.guild_only()
     async def clear(self, ctx: commands.Context, reach: int, *, keyword=None):
         try:
+            Embed = discord.Embed(
+                title="성공",
+                description=f"{reach}개의 메세지를 삭제했습니다",
+                color=0x00FF00
+            ).set_footer(text=f"요청자: {ctx.author}")
+
             if reach <= 0:
                 return await ctx.send("범위는 0보다 큰 정수로 입력해주세요.")
             elif keyword is None:
                 await ctx.channel.purge(limit=reach + 1)
+                await ctx.send(embed=Embed)
             else:
                 def check(ctx: commands.Context):
                     if keyword == None:
                         return True
                     else:
                         return ctx.content in str(keyword)
+                        
+                await ctx.message.delete()
                 await ctx.channel.purge(limit=reach + 1, check=check)
+                await ctx.send(embed=Embed)
         except Exception as E:
             errEmbed = discord.Embed(
                 title="오류",

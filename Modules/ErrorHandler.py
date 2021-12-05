@@ -14,7 +14,7 @@ class ErrorHandler(commands.Cog):
         elif isinstance(error, commands.errors.CommandOnCooldown):
             Embed = discord.Embed(
                 title="오류",
-                description=f"````{int(error.retry_after / 60000)}`분 후에 다시 사용해주세요```",
+                description=f"```{int(error.retry_after / 60)}분 후에 다시 사용해주세요```",
                 color=0xFF0000
             )
             await ctx.send(embed=Embed)

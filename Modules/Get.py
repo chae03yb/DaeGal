@@ -172,5 +172,10 @@ class Get(commands.Cog):
                 )
                 await ctx.send(embed=Embed)
 
+    @GeneralGet.group(name="Guild")
+    async def guildSet(self, ctx:commands.Context):
+        if ctx.invoked_subcommand is None:
+            pass
+
 def setup(client):
     client.add_cog(Get(client))

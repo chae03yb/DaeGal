@@ -2,7 +2,7 @@
     "bot": {
         "info": {
             "type": "info",
-            "description": "봇과 관련된 명령어 카테고리입니다\nㅤ",
+            "description": "봇과 관련된 명령어 카테고리입니다",
             "commandList": [
                 "`invite`",
                 "`ping`",
@@ -14,7 +14,7 @@
         "invite": {
             "type": "command",
             "isDeprecated": false,
-            "description": "봇의 초대 링크를 보냅니다\nㅤ",
+            "description": "봇의 초대 링크를 보냅니다",
             "arguments": [],
             "use": "`?invite`",
             "aliases": [
@@ -24,7 +24,7 @@
         "ping": {
             "type": "command",
             "isDeprecated": false,
-            "description": "pong! 메세지와 지연시간을 ms 단위를 보냅니다\nㅤ",
+            "description": "pong! 메세지와 지연시간을 ms 단위로 확인합니다",
             "arguments": [],
             "use": "`?ping`",
             "aliases": [
@@ -55,7 +55,7 @@
     "docs": {
         "info": {
             "type": "info",
-            "description": "문서를 관리하는 카테고리입니다\nㅤ",
+            "description": "문서를 관리하는 카테고리입니다",
             "commandList": [
                 "`help`", 
                 "`Memo`"
@@ -64,7 +64,7 @@
         "memo": {
             "type": "command",
             "isDeprecated": false,
-            "description": "메모를 관리합니다\nㅤ",
+            "description": "메모를 관리합니다",
             "arguments": [
                 "`MemoName`: 메모의 이름입니다\n메모 이름에는 `.`, `/` 문자는 들어갈 수 없습니다"
             ],
@@ -96,7 +96,8 @@
             "commandList": [
                 "`random`", 
                 "`dice`", 
-                "`choice`"
+                "`choice`",
+                "`bet`"
             ]
         },
         "dice": {
@@ -133,6 +134,21 @@
             "use": "`?choice <Value1> [Value2 ...]`",
             "aliases": [
                 "`선택`"
+            ]
+        },
+        "bet": {
+            "type": "command",
+            "isDeprecated": false,
+            "description": "판돈을 걸어 돈을 잃거나 얻습니다",
+            "arguments": [
+                "betMoney: 걸 돈"
+            ],
+            "use": "`?bet <betMoney>`",
+            "aliases": [
+                "`도박`",
+                "`ㄷㅂ`",
+                "`eq`",
+                "`ehqkr`"
             ]
         }
     },
@@ -351,17 +367,6 @@
             ]
         }
     },
-    "user": {
-        "info": {
-            "type": "info",
-            "description": "유저에 관련된 명령어 카테고리입니다",
-            "commandList": [
-                "`EditProfile`",
-                "`profile`",
-                "`유저등록`"
-            ]
-        }
-    },
     "get": {
         "info": {
             "type": "info",
@@ -399,7 +404,7 @@
             "description": "항목을 설정합니다",
             "arguments": [
                 "`Category`: 설정할 카테고리\n\n카테고리 목록\n`Guild`\n`User`\n------------------------------",
-                "`SubCategory`: 하위 카테고리, 비워둘 경우 제거합니다\n\n`Guild/Role/`: 서버 역할 설정\n- `Guild/Role/Member`: 멤버 역할\n- `Guild/Role/Bot`: 봇 역할\n- `Guild/Role/Punish`: 징벌 역할\n\n`Guild/Channel/`: 서버 채널 설정\n- `Guild/Channel/Welcome`: 입장 채널\n- `Guild/Channel/Notice`: 봇 공지 채널\n\n`User/`: 유저 설정\n`User/Profile`: 유저 프로필"
+                "`SubCategory`: 하위 카테고리, 비워둘 경우 제거합니다\n\n`Guild/Role/`: 서버 역할 설정\n- `Guild/Role/Member`: 멤버 역할\n- `Guild/Role/Bot`: 봇 역할\n- `Guild/Role/Punish`: 징벌 역할\n\n`Guild/Channel/`: 서버 채널 설정\n- `Guild/Channel/Welcome`: 입장 채널\n- `Guild/Channel/Notice`: 봇 공지 채널\n\n`User/`: 유저 설정\n- `User/Profile`: 유저 프로필"
             ],
             "use": "`?get <Category> <SubCategory>`",
             "aliases": [

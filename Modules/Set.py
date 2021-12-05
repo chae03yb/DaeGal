@@ -1,9 +1,10 @@
 import discord
 from discord.ext import commands
 
+import os
 import SimpleJSON
 
-Path = "./Data"
+Path = "/DaeGal/Data"
 
 class Set(commands.Cog): 
     def __init__(self, client):
@@ -14,7 +15,7 @@ class Set(commands.Cog):
         if ctx.invoked_subcommand is None:
             await ctx.send(embed=discord.Embed(
                 title="오류",
-                description="설정할 항목이 필요합니다",
+                description="올바른 항목을 선택해주세요",
                 color=0xFF0000
             ))
     
@@ -29,7 +30,7 @@ class Set(commands.Cog):
         if ctx.invoked_subcommand is None:
             await ctx.send(embed=discord.Embed(
                 title="오류",
-                description="설정할 항목이 필요합니다",
+                description="올바른 항목을 선택해주세요",
                 color=0xFF0000
             ))
     
@@ -44,7 +45,7 @@ class Set(commands.Cog):
         if ctx.invoked_subcommand is None:
             await ctx.send(embed=discord.Embed(
                 title="오류",
-                description="설정할 항목이 필요합니다",
+                description="올바른 항목을 선택해주세요",
                 color=0xFF0000
             ))
 
@@ -53,43 +54,38 @@ class Set(commands.Cog):
     @commands.has_permissions(administrator=True)
     @commands.bot_has_guild_permissions(administrator=True)
     async def setMemberRole(self, ctx:commands.Context, role:discord.Role=None):
-        Config: dict = None
         ConfigPath = f"{Path}/Guild/{ctx.guild.id}/GuildConfig.json"
+        if not os.path.exists(ConfigPath):
+            SimpleJSON.Write(ConfigPath, {})
+        
+        Config: dict = SimpleJSON.Read(ConfigPath)
 
-        try:
-            SimpleJSON.Read(ConfigPath)["Role"]
-        except FileNotFoundError:
-            SimpleJSON.Write(ConfigPath, {"Role":{}})
-        except KeyError:
-            tmpData = SimpleJSON.Read(f"{Path}/Guild/{ctx.guild.id}/GuildConfig.json")
-            tmpData.update({"Role": {}})
-            SimpleJSON.Write(ConfigPath, tmpData)
-        finally:
-            Config = SimpleJSON.Read(ConfigPath)
-
-        if role is None: 
-            try:
-                del Config["Role"]["Member"]
-            except KeyError:
-                await ctx.send(embed=discord.Embed(
+        if "Role" not in Config.keys():
+            Config.update({ "Role": {} })
+        
+        if role is None:
+            if "Member" not in Config["Role"].keys():
+                return await ctx.send(embed=discord.Embed(
                     title="오류",
                     description="멤버 역할이 설정되지 않았습니다",
                     color=0xFF0000
                 ))
             else:
+                del Config["Role"]["Member"]
                 SimpleJSON.Write(ConfigPath, Config)
+
                 await ctx.send(embed=discord.Embed(
                     title="성공",
-                    description="멤버 역할을 설정에서 삭제했습니다",
+                    description=f"멤버 역할을 제거했습니다",
                     color=0x00FF00
                 ))
-        else:
+        else: 
             Config["Role"].update({ "Member": role.id })
             SimpleJSON.Write(ConfigPath, Config)
 
             await ctx.send(embed=discord.Embed(
                 title="성공",
-                description=f"멤버 역할을 {role.name} 으로 지정하였습니다",
+                description=f"멤버 역할을 `{role.name}` 으로 설정했습니다",
                 color=0x00FF00
             ))
 
@@ -98,43 +94,38 @@ class Set(commands.Cog):
     @commands.has_permissions(administrator=True)
     @commands.bot_has_guild_permissions(administrator=True)
     async def setBotRole(self, ctx:commands.Context, role:discord.Role=None):
-        Config: dict = None
         ConfigPath = f"{Path}/Guild/{ctx.guild.id}/GuildConfig.json"
+        if not os.path.exists(ConfigPath):
+            SimpleJSON.Write(ConfigPath, {})
+        
+        Config: dict = SimpleJSON.Read(ConfigPath)
 
-        try:
-            SimpleJSON.Read(ConfigPath)["Role"]
-        except FileNotFoundError:
-            SimpleJSON.Write(ConfigPath, {"Role":{}})
-        except KeyError:
-            tmpData = SimpleJSON.Read(f"{Path}/Guild/{ctx.guild.id}/GuildConfig.json")
-            tmpData.update({"Role": {}})
-            SimpleJSON.Write(ConfigPath, tmpData)
-        finally:
-            Config = SimpleJSON.Read(ConfigPath)
-
-        if role is None: 
-            try:
-                del Config["Role"]["Bot"]
-            except KeyError:
-                await ctx.send(embed=discord.Embed(
+        if "Role" not in Config.keys():
+            Config.update({ "Role": {} })
+        
+        if role is None:
+            if "Bot" not in Config["Role"].keys():
+                return await ctx.send(embed=discord.Embed(
                     title="오류",
                     description="봇 역할이 설정되지 않았습니다",
                     color=0xFF0000
                 ))
             else:
+                del Config["Role"]["Bot"]
                 SimpleJSON.Write(ConfigPath, Config)
+
                 await ctx.send(embed=discord.Embed(
                     title="성공",
-                    description="봇 역할을 설정에서 삭제했습니다",
+                    description=f"봇 역할을 제거했습니다",
                     color=0x00FF00
                 ))
-        else:
+        else: 
             Config["Role"].update({ "Bot": role.id })
             SimpleJSON.Write(ConfigPath, Config)
 
             await ctx.send(embed=discord.Embed(
                 title="성공",
-                description=f"봇 역할을 {role.name} 으로 지정하였습니다",
+                description=f"봇 역할을 `{role.name}` 으로 설정했습니다",
                 color=0x00FF00
             ))
 
@@ -143,43 +134,38 @@ class Set(commands.Cog):
     @commands.has_permissions(administrator=True)
     @commands.bot_has_guild_permissions(administrator=True)
     async def setPunishRole(self, ctx:commands.Context, role:discord.Role=None):
-        Config: dict = None
         ConfigPath = f"{Path}/Guild/{ctx.guild.id}/GuildConfig.json"
+        if not os.path.exists(ConfigPath):
+            SimpleJSON.Write(ConfigPath, {})
+        
+        Config: dict = SimpleJSON.Read(ConfigPath)
 
-        try:
-            SimpleJSON.Read(ConfigPath)["Role"]
-        except FileNotFoundError:
-            SimpleJSON.Write(ConfigPath, {"Role":{}})
-        except KeyError:
-            tmpData = SimpleJSON.Read(f"{Path}/Guild/{ctx.guild.id}/GuildConfig.json")
-            tmpData.update({"Role": {}})
-            SimpleJSON.Write(ConfigPath, tmpData)
-        finally:
-            Config = SimpleJSON.Read(ConfigPath)
-
-        if role is None: 
-            try:
-                del Config["Role"]["Punish"]
-            except KeyError:
-                await ctx.send(embed=discord.Embed(
+        if "Role" not in Config.keys():
+            Config.update({ "Role": {} })
+        
+        if role is None:
+            if "Punish" not in Config["Role"].keys():
+                return await ctx.send(embed=discord.Embed(
                     title="오류",
-                    description="징벌 역할이 설정되지 않았습니다",
+                    description="징벌자 역할이 설정되지 않았습니다",
                     color=0xFF0000
                 ))
             else:
+                del Config["Role"]["Punish"]
                 SimpleJSON.Write(ConfigPath, Config)
+
                 await ctx.send(embed=discord.Embed(
                     title="성공",
-                    description="징벌 역할을 설정에서 삭제했습니다",
+                    description=f"징벌자 역할을 제거했습니다",
                     color=0x00FF00
                 ))
-        else:
+        else: 
             Config["Role"].update({ "Punish": role.id })
             SimpleJSON.Write(ConfigPath, Config)
 
             await ctx.send(embed=discord.Embed(
                 title="성공",
-                description=f"징벌 역할을 {role.name} 으로 지정하였습니다",
+                description=f"징벌자 역할을 `{role.name}` 으로 설정했습니다",
                 color=0x00FF00
             ))
     
@@ -194,7 +180,7 @@ class Set(commands.Cog):
         if ctx.invoked_subcommand is None:
             await ctx.send(embed=discord.Embed(
                 title="오류",
-                description="설정할 항목이 필요합니다",
+                description="올바른 항목을 선택해주세요",
                 color=0xFF0000
             ))
 
@@ -285,7 +271,7 @@ class Set(commands.Cog):
         if ctx.invoked_subcommand is None:
             await ctx.send(embed=discord.Embed(
                 title="오류",
-                description="설정할 항목이 필요합니다",
+                description="올바른 항목을 선택해주세요",
                 color=0xFF0000
             ))
 

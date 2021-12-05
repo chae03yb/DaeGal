@@ -2,10 +2,29 @@ import asyncio
 from discord.ext import commands
 import discord
 import random
-import json
-import os
+import SimpleJSON
 
 Path = "/DaeGal/Data" # 데이터 저장할 경로
+
+def getUserData(ctx: commands.Context) -> dict:
+    try:
+        SimpleJSON.Read(f"{Path}/User/{ctx.author.id}.json")["Economy"]
+    except FileNotFoundError:
+        SimpleJSON.Write(f"{Path}/User/{ctx.author.id}.json", { 
+            "Economy": { 
+                "money": 5000 
+            } 
+        })
+    except KeyError:
+        tempdata: dict = SimpleJSON.Read(f"{Path}/User/{ctx.author.id}.json")
+        tempdata.update({ 
+            "Economy": { 
+                "money": 5000 
+            } 
+        })
+        SimpleJSON.Write(f"{Path}/User/{ctx.author.id}.json", tempdata)
+    finally:
+        return SimpleJSON.Read(f"{Path}/User/{ctx.author.id}.json")
 
 class Game(commands.Cog):
     def __init__(self, client):
@@ -74,86 +93,152 @@ class Game(commands.Cog):
     async def joker(self, ctx: commands.Context):
         pass
 
-    # @commands.command(name="도박", aliases=["ㄷㅂ", "eq", "ehqkr"])
-    async def do_bak(self, ctx:commands.Context, betType="All_in", betMoney=0):
-        return
-        # betType = 베팅할 타입
-        #   All_in: 올인함
-        #   %: 100% 이하의 비율로 베팅함
-        #       소숫점 아래는 버림
-        #   $: 돈 가진 액수 안에서 베팅함
-        Multiple = [
-            0, 0, 0, 0, 0, 0, 0, 0, 0,
+    @commands.command(name="getMoney", aliases=["돈받기", "ㄷㅂㄱ", "eqr"])
+    @commands.cooldown(rate=2, per=10800, type=commands.BucketType.user)
+    async def claimMoney(self, ctx: commands.Context):
+        userData: dict = getUserData(ctx)
+        if userData["Economy"]["money"] != 0:
+            return await ctx.send(embed=discord.Embed(
+                title="오류",
+                description="잔고가 비어있을 경우에만 사용이 가능합니다",
+                color=0xFF0000
+            ))
+        else:
+            userData["Economy"]["money"] = 500
+            SimpleJSON.Write(f"{Path}/User/{ctx.author.id}.json", {
+                "Economy": {
+                    "money": 500
+                }
+            })
+            return await ctx.send(embed=discord.Embed(
+                title="성공",
+                description="500원을 받았습니다",
+                color=0x00FF00
+            ))
+
+    @commands.cooldown(1, 3, type=commands.BucketType.user)
+    @commands.command(name="도박", aliases=["ㄷㅂ", "eq", "ehqkr", "bet"])
+    async def do_bak(self, ctx:commands.Context, command: str):
+        try:
+            betmoney = int(command)
+        except ValueError:
+            if command.startswith("/"):
+                try:
+                    betmoney = int(getUserData(ctx)["Economy"]["money"] / int(command.replace("/", "")))
+                except ValueError:
+                    return await ctx.send(
+                        embed=discord.Embed(
+                            title="오류",
+                            description="올바른 금액을 입력해 주세요",
+                            color=0xFF0000
+                        )
+                    )
+            else:
+                return await ctx.send(
+                    embed=discord.Embed(
+                        title="오류",
+                        description="올바른 금액을 입력해 주세요",
+                        color=0xFF0000
+                    )
+                )
+
+        # 베팅은 가진 액수에서 차감
+        if betmoney < 0:
+            return await ctx.send(embed=discord.Embed(
+                title="오류",
+                description="올바른 금액을 입력해주세요",
+                color=0xFF0000
+            ))
+
+        multiple: list = [
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
             2, 2, 2, 2, 2, 2, 2, 2, 2,
             3, 3, 3, 3, 3,
             4, 4,
             5,
             10
         ]
-        poorPeopleEmbed = discord.Embed(
-            # 임베드 메시지를 만들어요
-            title="돈이 없네요!", # 제목
-            description="돈이 없어요...", # 설명
-            color=0xFF7F00 # 색깔은 주황색으로
-        ) \
-        .set_thumbnail(url=r"https://cdn.discordapp.com/attachments/805808631312023582/805809017624461312/4797c3873fe25139.jpg") \
-        .set_footer(text="돈이 없다면 구걸해보는게 어떨까요?")
-                
-        if betType != "All_in" and betMoney == 0:
-            return await ctx.send("0원을 베팅할 수 없어요")
+        
+        userdata: dict = getUserData(ctx)
 
-        if betType == "%": # 베팅 타입이 비율 이라면
-            os.makedirs(f"{Path}/Guild/{ctx.guild.id}/Members", exist_ok=True) # 폴더 없으면 자동으로 만들어줌
-            # 함수 이름을 뭐로 하지
-            async def do_allin(): # 다시 써야 해서 함수로 
-                with open(f"{Path}/Guild/{ctx.guild.id}/Members/{ctx.author.id}.json", "r") as File: 
-                    # Path(/DaeGal/Data) 여기 경로 아래에 있는
-                    # User 폴더 안에 명령어 친 사람의 18자리 ID의 이름을 가진 파일을 보는거임
-                    Data = json.load(fp=File)["Economy"]
-                    if Data["Money"] == 0:
-                        # 돈 없는 그지라면
-                        
-                        await ctx.send(embed=poorPeopleEmbed) # 만든 임베드 메세지를 임베드 메세지라고 알려준 후 보냄
-                    else:
-                        # 돈 없는 그지가 아니라면
-                        nonlocal betMoney
-                        betMoney = Data["Money"] / (100 / betMoney)
+        if userdata["Economy"]["money"] == 0:
+            return await ctx.send(embed=discord.Embed(
+                title="돈이 없네요!", # 제목
+                description="돈이 없어요...", # 설명
+                color=0xFF7F00 # 색깔은 주황색으로
+            ) \
+            .set_thumbnail(url=r"https://cdn.discordapp.com/attachments/805808631312023582/805809017624461312/4797c3873fe25139.jpg") \
+            .set_footer(text="?돈받기 명령어를 사용해 회생해보세요"))
 
-                        if int(betMoney) == 0:
-                            await ctx.send(embed=poorPeopleEmbed)
-                        else:
-                            random.seed()
-                            Multiple = random.choice()
-                            if Multiple != 0:
-                                writeData = json.load(fp=File).update({"Economy":{"Money":betMoney*Multiple}})
-                                with open(f"{Path}/Guild/{ctx.guild.id}/Members/{ctx.author.id}.json", "w") as UserData:
-                                    json.dump(fp=UserData, obj=writeData, indent=4)
-                            elif Multiple == 0:
-                                writeData = json.load(fp=File).update({"Economy":{"Money":0}})
-                                with open(f"{Path}/Guild/{ctx.guild.id}/Members/{ctx.author.id}.json", "w") as UserData:
-                                    json.dump(fp=UserData, obj=writeData, indent=4)
-                                await ctx.send("꽝이네요...")
-                            
-                            if Multiple == 10:
-                                await ctx.send("10배 당첨이네요!")
+        elif userdata["Economy"]["money"] < betmoney:
+            return await ctx.send(embed=discord.Embed(
+                title="오류",
+                description="베팅할 금액이 가진 돈보다 큽니다",
+                color=0xFF0000
+            ))
+
+        if userdata["Economy"]["money"] == betmoney:
+            allinalert = await ctx.send(embed=discord.Embed(
+                title="경고",
+                description=f"올인하여 가진 돈을 모두 잃을 경우 되돌릴 수 없습니다!\n계속 하시겠습니까?",
+                color=0xFFAA00
+            ))
+            for emoji in ["\N{HEAVY LARGE CIRCLE}", "\N{CROSS MARK}"]:
+                await allinalert.add_reaction(emoji)
+
+            def check(reaction:discord.Reaction, user:discord.User):
+                return user == ctx.author and str(reaction.emoji)
+
             try:
-                await do_allin() # 위에 만든 함수
-            except FileNotFoundError:
-                # 파일을 못찾았을때
-                with open(f"{Path}/Guild/{ctx.guild.id}/Members/{ctx.author.id}.json", "w") as File:
-                    # 파일을 만듬
-                    obj = {
-                        "Economy": {
-                            "Money": 1000000 # 초기 자금 1000000딸라
-                        }
-                    }
-                    json.dump(fp=File, obj=obj, indent=4) 
-                    # obj: 파일에 쓸 내용, indent: 파일 들여쓰기를 띄어쓰기 몇칸으로?
-                    await do_allin()
-        elif betType == "$": # 베팅 타입이 액수라면
-            pass
+                reaction, user = await self.client.wait_for("reaction_add", check=check, timeout=30.0)
+            except asyncio.TimeoutError:
+                return await ctx.send(embed=discord.Embed(
+                    title="오류",
+                    description="요청한 시간이 만료되었습니다",
+                    color=0xFF0000
+                ))
+
+            if str(reaction.emoji) == "❌":
+                return await ctx.send(embed=discord.Embed(
+                    title="알림",
+                    description="베팅이 취소되었습니다",
+                    color=0x00FF00
+                ))
+            elif str(reaction.emoji) == "⭕️":
+                await ctx.send(embed=discord.Embed(
+                    title="알림",
+                    description="올인합니다",
+                    color=0x00FF00
+                )) 
+
+        multipleresult = random.choice(multiple)
+        result = betmoney * multipleresult
+
+        if not result == 0:
+            userdata["Economy"]["money"] += result
         else:
-            pass
+            if (userdata["Economy"]["money"] - betmoney) < 0: 
+                userdata["Economy"]["money"] = 0
+            else: 
+                userdata["Economy"]["money"] -= betmoney
+
+        SimpleJSON.Write(f"{Path}/User/{ctx.author.id}.json", userdata)
+
+        Embed = discord.Embed(
+            title="결과",
+            color=0x00FF00
+        ) \
+        .add_field( name="베팅 금액", value=f"`{betmoney}`원",       inline=False ) \
+        .add_field( name="배수",      value=f"`{multipleresult}`배", inline=False ) 
+
+        if result != 0:
+            Embed.add_field( name="딴 돈", value=f"`{result}`", inline=False ) 
+        else:
+            Embed.add_field( name="잃은 돈", value=f"`{-betmoney}`", inline=False ) 
+
+        Embed.add_field( name="잔고", value=f"`{int(userdata['Economy']['money'])}`원", inline=False )
+
+        await ctx.reply(embed=Embed)
     
     # @commands.command(name="포커", aliases=["poker"])
     async def poker(self, ctx:commands.Context, playerCount:int=1):

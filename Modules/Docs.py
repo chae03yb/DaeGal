@@ -79,13 +79,16 @@ class Docs(commands.Cog):
                     Embed.add_field(name="사용", value=Help["use"], inline=False)
 
                     if bool(Help["aliases"]):
-                        Embed.add_field(name="별칭", value=", ".join(Help["aliases"]), inline=False)
+                        Embed.add_field(name="별칭", value=", ".join(Help["aliases"]), inline=True)
                     else:
-                        Embed.add_field(name="별칭", value="**없음**", inline=False)
+                        Embed.add_field(name="별칭", value="**없음**", inline=True)
                     
                     if Help["isDeprecated"]:
-                        Embed.set_footer(text="삭제/대체 예정")
+                        Embed.add_field(name="삭제/대체 예정?", value="예")
+                    else:
+                        Embed.add_field(name="삭제/대체 예정?", value="아니오")
                     
+                    Embed.add_field(name="도움말 보는 법", value="[대갈 위키](https://github.com/chae03yb/DaeGal/wiki/Help:-view)", inline=False)
                 await ctx.send(embed=Embed)
             except KeyError:
                 Embed = discord.Embed(

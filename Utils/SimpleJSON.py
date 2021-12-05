@@ -17,8 +17,23 @@ def Write(Path=None, Object=None):
         pass
     elif Object is None:
         raise RequireObject
+        os.makedirs()
+    
+    path, filename = os.path.split(Path)
+
+    os.makedirs(path, exist_ok=True)
     with open(Path, 'w') as File:
         json.dump(fp=File, obj=Object, indent=4)
+
+def Update(Path:str=None, Object=None):
+    if Path is None:
+        raise RequirePath
+    elif Object is None:
+        raise RequireObject
+    else:
+        tempdata = json.load(fp=open(Path, 'r'))
+        tempdata.update(Object)
+        json.dump(fp=open(Path, 'w'), obj=tempdata, indent=4)
 
 def BackupWrite(Path=None, Object=None) -> str:
     if Path is None:
